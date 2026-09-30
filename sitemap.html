@@ -30,7 +30,7 @@
    under html[data-motion="on"] (set by the head script, toggled by #motion). */
 @font-face { font-family: "Shrikhand"; src: url(./assets/fonts/shrikhand.woff2) format("woff2"); font-display: swap; }
 @font-face { font-family: "Space Grotesk"; src: url(./assets/fonts/space-grotesk.woff2) format("woff2"); font-weight: 300 700; font-display: swap; }
-@font-face { font-family: "JetBrains Mono"; src: url(./assets/fonts/jetbrains-mono.woff2) format("woff2"); font-display: swap; }
+@font-face { font-family: "JetBrains Mono"; src: url(./assets/fonts/jetbrains-mono.woff2) format("woff2"); font-display: optional; } /* never swapped in late: code reflows the page */
 
 :root {
   --orange: #ff6b1a; --magenta: #ff2e88; --teal: #14c4bd; --yellow: #ffd23f;
@@ -255,6 +255,7 @@ main:focus { outline: none; box-shadow: none; }
 .doc.one { grid-template-columns: minmax(0, 1fr); }
 .table code { overflow-wrap: normal; white-space: nowrap; }
 html[data-motion="off"] { scroll-behavior: auto; }
+.toc code, .pager code, .docs-grid code { font-family: inherit; }
 
 </style>
 <script>
