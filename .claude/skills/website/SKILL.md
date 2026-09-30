@@ -76,6 +76,10 @@ middle of the screen `.active` (plays its entrance, sets `aria-current` in the r
 Snapping is `mandatory` only when every section fits the screen, `proximity` otherwise.
 Keep `#features` and `#start`: the menu links to them. New section: a `.sec` with an `id`,
 its link in the rail, its buddy, and check it fits a 1280×800 screen.
+A buddy that moves *with* the content (the features' crab jumping from card to card) is
+placed by `site.js` from the elements' real positions, never timed in CSS to one layout:
+the grid is 4 columns, then 2 × 2 below 1001 px, then a carousel below 641 px, and each
+must keep its crab. Check every animation at 1280, 820 and 390 px wide.
 
 ## Checking
 
