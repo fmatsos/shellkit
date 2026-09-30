@@ -3,35 +3,34 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>shellkit: a funky, plain zsh / bash setup</title>
-<meta name="description" content="A plain zsh / bash setup for Linux and macOS, with an async, themeable prompt that never makes you wait for the network. No framework, zsh starts in about 35 ms.">
-<link rel="canonical" href="https://fmatsos.github.io/shellkit/">
+<title>Development · shellkit docs</title>
+<meta name="description" content="working on shellkit itself">
+<link rel="canonical" href="https://fmatsos.github.io/shellkit/docs/development.html">
 <meta name="theme-color" content="#140f2e">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="shellkit">
 <meta property="og:locale" content="en_US">
-<meta property="og:title" content="shellkit">
-<meta property="og:description" content="A plain zsh / bash setup for Linux and macOS, with an async, themeable prompt that never makes you wait for the network. No framework, zsh starts in about 35 ms.">
-<meta property="og:url" content="https://fmatsos.github.io/shellkit/">
+<meta property="og:title" content="Development">
+<meta property="og:description" content="working on shellkit itself">
+<meta property="og:url" content="https://fmatsos.github.io/shellkit/docs/development.html">
 <meta property="og:image" content="https://fmatsos.github.io/shellkit/assets/og.jpg">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="shellkit: an orange hermit crab in sunglasses, holding a wrench, dancing on a beach at sunset">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="./assets/favicon.png" type="image/png">
-<link rel="apple-touch-icon" href="./assets/apple-touch-icon.png">
-<link rel="preload" href="./assets/fonts/shrikhand.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preload" href="./assets/fonts/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode","name":"shellkit","description":"A plain zsh / bash setup for Linux and macOS, with an async, themeable prompt that never makes you wait for the network. No framework, zsh starts in about 35 ms.","codeRepository":"https://github.com/fmatsos/shellkit","programmingLanguage":"Shell","license":"https://unlicense.org","url":"https://fmatsos.github.io/shellkit/"}</script>
-<link rel="preload" as="image" type="image/avif" imagesrcset="assets/hero-640.avif 640w, assets/hero-1200.avif 1200w" imagesizes="(max-width: 860px) calc(100vw - 44px), 560px" fetchpriority="high">
+<link rel="icon" href="../assets/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+<link rel="preload" href="../assets/fonts/shrikhand.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../assets/fonts/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>
+
 <style>
 /* shellkit site: one stylesheet for the landing page and the docs, inlined by build.py.
-   ./ is replaced by the page's path to the site root. Every animation runs only
+   ../ is replaced by the page's path to the site root. Every animation runs only
    under html[data-motion="on"] (set by the head script, toggled by #motion). */
-@font-face { font-family: "Shrikhand"; src: url(./assets/fonts/shrikhand.woff2) format("woff2"); font-display: swap; }
-@font-face { font-family: "Space Grotesk"; src: url(./assets/fonts/space-grotesk.woff2) format("woff2"); font-weight: 300 700; font-display: swap; }
-@font-face { font-family: "JetBrains Mono"; src: url(./assets/fonts/jetbrains-mono.woff2) format("woff2"); font-display: swap; }
+@font-face { font-family: "Shrikhand"; src: url(../assets/fonts/shrikhand.woff2) format("woff2"); font-display: swap; }
+@font-face { font-family: "Space Grotesk"; src: url(../assets/fonts/space-grotesk.woff2) format("woff2"); font-weight: 300 700; font-display: swap; }
+@font-face { font-family: "JetBrains Mono"; src: url(../assets/fonts/jetbrains-mono.woff2) format("woff2"); font-display: swap; }
 
 :root {
   --orange: #ff6b1a; --magenta: #ff2e88; --teal: #14c4bd; --yellow: #ffd23f;
@@ -268,12 +267,12 @@ document.documentElement.dataset.motion = m || (matchMedia("(prefers-reduced-mot
 <a class="skip" href="#main">Skip to content</a>
 <header class="top">
   <div class="wrap">
-    <a class="brand" href="./"><img src="./assets/mascot-96.webp" alt="" width="96" height="96">shellkit</a>
+    <a class="brand" href="../"><img src="../assets/mascot-96.webp" alt="" width="96" height="96">shellkit</a>
     <nav aria-label="Main">
       <ul class="plain">
-        <li class="wide"><a href="./#features">Features</a></li>
-        <li class="wide"><a href="./#start">Quick start</a></li>
-        <li><a href="./docs/">Docs</a></li>
+        <li class="wide"><a href="../#features">Features</a></li>
+        <li class="wide"><a href="../#start">Quick start</a></li>
+        <li><a href="../docs/">Docs</a></li>
         <li><a href="https://github.com/fmatsos/shellkit">GitHub</a></li>
       </ul>
     </nav>
@@ -281,141 +280,246 @@ document.documentElement.dataset.motion = m || (matchMedia("(prefers-reduced-mot
   </div>
 </header>
 <main id="main" tabindex="-1">
-<section class="hero" aria-labelledby="hero-title">
-  <div class="wrap">
-    <div class="sticker">
-      <h1 id="hero-title">shellkit</h1>
-      <p class="tag">A plain zsh / bash setup for Linux and macOS, with an async, themeable prompt that never makes you wait for the network.</p>
-      <div class="cta">
-        <a class="btn" href="#start">Get groovy: install it</a>
-        <a class="btn alt" href="docs/">Read the docs</a>
-      </div>
-      <ul class="plain badges" aria-label="At a glance">
-        <li>Linux</li><li>macOS</li><li>no framework</li><li>public domain</li>
-      </ul>
-    </div>
-    <div class="art">
-      <picture>
-        <source type="image/avif" srcset="assets/hero-640.avif 640w, assets/hero-1200.avif 1200w" sizes="(max-width: 860px) calc(100vw - 44px), 560px">
-        <img src="assets/hero-1200.webp" srcset="assets/hero-640.webp 640w, assets/hero-1200.webp 1200w" sizes="(max-width: 860px) calc(100vw - 44px), 560px"
-        width="1200" height="800" fetchpriority="high" alt="The shellkit hermit crab, in sunglasses, dancing on the beach at sunset with its wrench raised"></picture>
-    </div>
-  </div>
-  <div class="walker" aria-hidden="true"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="assets/crab-walk.webp" alt="" width="768" height="128"></div>
-</section>
+<div class="band"><div class="wrap"><div class="sticker"><p class="kicker"><a href="index.html">shellkit docs</a></p><h1>Development</h1></div></div></div>
+<div class="wrap doc">
+<nav class="toc" aria-label="Documentation pages"><ul class="plain">
+<li><a href="installation.html">Installation</a></li>
+<li><a href="usage.html">Usage</a></li>
+<li><a href="configuration.html">Configuration</a></li>
+<li><a href="shkit.html"><code>shkit</code> reference</a></li>
+<li><a href="prompt.html">The prompt</a></li>
+<li><a href="themes.html">Writing a theme</a></li>
+<li><a href="blocks.html">Writing a block</a></li>
+<li><a href="plugins.html">Plugins</a></li>
+<li><a href="development.html" aria-current="page">Development</a></li>
+</ul></nav>
+<div class="prose">
+<p>Working on shellkit itself. The rules for contributors, human or agent, are in
+<a href="https://github.com/fmatsos/shellkit/blob/main/AGENTS.md"><code>AGENTS.md</code></a>. This page is the tour.</p>
+<ul>
+<li><a href="#repository-layout">Repository layout</a></li>
+<li><a href="#principles">Principles</a></li>
+<li><a href="#checks">Checks</a></li>
+<li><a href="#ci">CI</a></li>
+<li><a href="#releasing">Releasing</a></li>
+<li><a href="#agent-skills">Agent skills</a></li>
+</ul>
+<h2 id="repository-layout">Repository layout</h2>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<code>zsh/zshrc</code>, <code>zsh/zshenv</code>
+</td>
+<td>the zsh config, symlinked by <code>zsh/install.sh</code>
+</td>
+</tr>
+<tr>
+<td><code>zsh/prompt.zsh</code></td>
+<td>the prompt: blocks, background jobs, layers, rendering</td>
+</tr>
+<tr>
+<td><code>zsh/prompt.check.zsh</code></td>
+<td>its self-check (no network)</td>
+</tr>
+<tr>
+<td><code>zsh/shkit.zsh</code></td>
+<td>the <code>shkit</code> command, its completion, the auto-update</td>
+</tr>
+<tr>
+<td><code>zsh/plugin/</code></td>
+<td>
+<code>schema.json</code>, <code>validate.jq</code> and <code>example/</code>, a template plugin</td>
+</tr>
+<tr>
+<td>
+<code>bash/bashrc</code>, <code>bash/completion.sh</code>
+</td>
+<td>the bash fallback</td>
+</tr>
+<tr>
+<td><code>shell/aliases.sh</code></td>
+<td>aliases and functions shared by both shells</td>
+</tr>
+<tr>
+<td><code>shell/install-local.sh</code></td>
+<td>creates and migrates <code>~/.config/shkit/</code>
+</td>
+</tr>
+<tr>
+<td><code>bin/</code></td>
+<td>standalone scripts</td>
+</tr>
+<tr>
+<td><code>docs/</code></td>
+<td>this documentation</td>
+</tr>
+<tr>
+<td><code>.github/workflows/</code></td>
+<td>
+<code>check.yml</code> (CI) and <code>release.yml</code> (releases)</td>
+</tr>
+<tr>
+<td>
+<code>.github/smoke.zsh</code>, <code>.github/smoke.bash</code>
+</td>
+<td>the installed shells, tested end to end in CI</td>
+</tr>
+<tr>
+<td><code>.claude/skills/</code></td>
+<td>agent skills (below), including <code>config-commit/check.sh</code>
+</td>
+</tr>
+</tbody>
+</table>
+<h2 id="principles">Principles</h2>
+<ul>
+<li>
+<strong>Plain shell, no framework.</strong> Startup stays under 60 ms, and around 35 ms is usual.</li>
+<li>
+<strong>Linux and macOS, fully.</strong> No GNU-only flags, no <code>/proc</code> without a fallback. A
+zsh builtin (<code>zstat</code>, <code>$EPOCHREALTIME</code>, <code>:A</code>) is better than an <code>$OSTYPE</code> branch,
+because then Linux runs the Mac's code too. The install scripts must run on
+macOS's bash 3.2.</li>
+<li>
+<strong>The prompt's synchronous path stays local</strong>: under 50 ms in a large repository.
+Anything networked goes through the background cache.</li>
+<li>
+<strong>Nothing dynamic reaches the prompt unescaped</strong>, and <code>PROMPT_SUBST</code> stays off.</li>
+<li>
+<strong>No secret in the repository, ever.</strong> The code uses variables, and the values
+live in <code>~/.config/shkit/secrets.sh</code>.</li>
+<li>
+<strong><code>noclobber</code> is on</strong>: overwrite a file with <code>&gt;|</code>.</li>
+</ul>
+<h2 id="checks">Checks</h2>
+<p>Run before every commit, after <code>git add</code>:</p>
+<div class="highlight highlight-source-shell"><pre>.claude/skills/config-commit/check.sh</pre></div>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>What</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>syntax</td>
+<td>
+<code>zsh -n</code> / <code>bash -n</code> / <code>sh -n</code> on every script</td>
+</tr>
+<tr>
+<td>prompt self-check</td>
+<td>
+<code>zsh/prompt.check.zsh</code>: blocks, layers, <code>shkit</code>, plugins, updates. It forces the macOS fallbacks on Linux too (no <code>timeout</code>, no <code>/proc</code>)</td>
+</tr>
+<tr>
+<td>startup</td>
+<td>the working tree's <code>zshrc</code> prints nothing on stderr, and starts in ≤ 60 ms (best of 5)</td>
+</tr>
+<tr>
+<td>secrets</td>
+<td>the exact values of your <code>secrets.sh</code>, then common token shapes, in the index</td>
+</tr>
+</tbody>
+</table>
+<p>Exit code 1 means don't commit. To run the self-check alone:</p>
+<div class="highlight highlight-source-shell"><pre>zsh zsh/prompt.check.zsh</pre></div>
+<h2 id="ci">CI</h2>
+<p><code>.github/workflows/check.yml</code> runs on every push to a branch and on every pull
+request, on Ubuntu and macOS:</p>
+<ol>
+<li>
+<code>check.sh</code> (the startup time is reported, not enforced, on shared runners);</li>
+<li>the install scripts, with macOS's own <code>/bin/bash</code> 3.2 there;</li>
+<li>the installed shells, as a user gets them: <code>zsh -i .github/smoke.zsh</code> and
+<code>bash -i .github/smoke.bash</code>, with aliases, prompt, directory jump and a real
+plugin install;</li>
+<li>on macOS, <code>bashrc</code> stopping cleanly under bash 3.2.</li>
+</ol>
+<p>A feature the self-check can't cover gets a line in the smoke tests.</p>
+<h2 id="website">Website</h2>
+<p>The site, <a href="https://fmatsos.github.io/shellkit/" rel="nofollow">https://fmatsos.github.io/shellkit/</a>, lives on the <code>gh-pages</code> branch: the
+landing page, the templates and <code>build.py</code>. Its documentation pages are these <code>docs/</code>,
+rebuilt by <code>.github/workflows/pages.yml</code> at every push to <code>main</code> that touches them
+(or by hand: <em>Actions → pages → Run workflow</em>). <code>build.py</code> renders them with GitHub's
+Markdown API and fails on a broken link between pages or to an anchor, so a doc that
+only works on github.com shows up there.</p>
+<p>To change the site itself, check out <code>gh-pages</code>, edit <code>src/</code> and run
+<code>python3 build.py &lt;path to main's docs/&gt;</code> before committing: see its <code>README.md</code>.</p>
+<h2 id="releasing">Releasing</h2>
+<p>A release is a tag <code>vX.Y.Z</code>:</p>
+<div class="highlight highlight-source-shell"><pre>git tag -a v1.2.0 -m v1.2.0
+git push origin v1.2.0</pre></div>
+<p><code>.github/workflows/release.yml</code> runs the full CI on the tag. If it passes, it:</p>
+<ol>
+<li>creates the GitHub release, with notes generated from the commits since the
+previous tag. A tag with a suffix (<code>v2.0.0-rc.1</code>) becomes a pre-release;</li>
+<li>for a stable tag, moves the <code>release</code> branch to it, fast-forward only.</li>
+</ol>
+<p>Clones follow the <code>release</code> branch, never raw tags: <code>shkit update</code>, and a background
+job at startup at most once a day (see <a href="installation.html#updating">Updating</a>).
+<strong>Only a tag that passed CI ever reaches a clone.</strong> So:</p>
+<ul>
+<li>follow <a href="https://semver.org" rel="nofollow">semver</a>: a breaking change of settings or of the
+block contract is a major version;</li>
+<li>never push to <code>release</code> by hand, and never rewrite it. Clones refuse a
+rewritten release branch;</li>
+<li>never move or delete a published tag;</li>
+<li>a failed release is fixed by a new tag (<code>v1.2.1</code>). There is nothing to roll back.</li>
+</ul>
+<h2 id="agent-skills">Agent skills</h2>
+<p><code>.claude/skills/</code> holds instructions for coding agents working in this repository:</p>
+<table>
+<thead>
+<tr>
+<th>Skill</th>
+<th>For</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>config-commit</code></td>
+<td>checks, then commit in the repository's style (<code>check.sh</code>)</td>
+</tr>
+<tr>
+<td><code>shell-config</code></td>
+<td>options, aliases, completion, install scripts, where a setting belongs</td>
+</tr>
+<tr>
+<td><code>prompt-theme</code></td>
+<td>the prompt engine: blocks, jobs, colors, layers, <code>shkit</code>
+</td>
+</tr>
+<tr>
+<td><code>prompt-plugin</code></td>
+<td>writing a plugin</td>
+</tr>
+</tbody>
+</table>
 
-<section class="pad" aria-labelledby="line-title">
-  <div class="wrap center">
-    <h2 id="line-title">Every fact on one line</h2>
-    <p class="lead">Directory, branch, ahead / behind, dirty files with their diff stat, the merge request and its CI, your Claude agents and quota. Local facts show up right away; networked ones redraw in place when they land, no Enter needed.</p>
-    <div class="terminal reveal"><img src="assets/prompt.png" width="1816" height="236" loading="lazy"
-      alt="The shellkit prompt in a git repository: directory, branch, 1 commit ahead, 2 changed files with +15 −4 lines, merge request !482 with CI passed, 1 Claude agent and the 5 h / 7 d quota"></div>
-    <ul class="plain stats">
-      <li class="reveal"><b>~35 ms</b>zsh startup</li>
-      <li class="reveal"><b>&lt; 50 ms</b>prompt, even on a huge repo</li>
-      <li class="reveal"><b>0</b>frameworks: plain zsh</li>
-    </ul>
-  </div>
-</section>
-
-<section class="pad features" id="features" aria-labelledby="features-title">
-  <div class="wrap">
-    <h2 id="features-title">Shell out, crab in</h2>
-    <p class="lead">Everything a busy shell needs, nothing it doesn't. Each block stays quiet until it has something to say.</p>
-    <ul class="plain grid">
-      <li class="card reveal"><picture><source type="image/avif" srcset="assets/async-480.avif 480w, assets/async-800.avif 800w" sizes="(max-width: 760px) calc(100vw - 40px), 540px"><img src="assets/async-800.webp" srcset="assets/async-480.webp 480w, assets/async-800.webp 800w" sizes="(max-width: 760px) calc(100vw - 40px), 540px" width="800" height="600" loading="lazy" decoding="async" alt="The crab surfing a huge wave on a surfboard shaped like a terminal window"></picture>
-        <div><h3>Async prompt</h3><p><code>git fetch</code>, the merge / pull request and its CI, unhealthy containers: all fetched in the background. The prompt redraws itself when they arrive.</p></div></li>
-      <li class="card reveal"><picture><source type="image/avif" srcset="assets/git-480.avif 480w, assets/git-800.avif 800w" sizes="(max-width: 760px) calc(100vw - 40px), 540px"><img src="assets/git-800.webp" srcset="assets/git-480.webp 480w, assets/git-800.webp 800w" sizes="(max-width: 760px) calc(100vw - 40px), 540px" width="800" height="600" loading="lazy" decoding="async" alt="The crab juggling glowing git branches under a disco ball"></picture>
-        <div><h3>Git at a glance</h3><p>Branch, worktree, ahead / behind, a diff stat, a rebase or bisect in progress with its conflicts, the branch's ticket and the review of its MR / PR.</p></div></li>
-      <li class="card reveal"><picture><source type="image/avif" srcset="assets/themes-480.avif 480w, assets/themes-800.avif 800w" sizes="(max-width: 760px) calc(100vw - 40px), 540px"><img src="assets/themes-800.webp" srcset="assets/themes-480.webp 480w, assets/themes-800.webp 800w" sizes="(max-width: 760px) calc(100vw - 40px), 540px" width="800" height="600" loading="lazy" decoding="async" alt="The crab painting its own shell with rainbow stripes"></picture>
-        <div><h3>Themes &amp; blocks</h3><p>The layout is a format string like <code>'{dir} · {git}'</code>. Colors are roles, icons are variables, a block is a small zsh function. Per-project looks too.</p></div></li>
-      <li class="card reveal"><picture><source type="image/avif" srcset="assets/plugins-480.avif 480w, assets/plugins-800.avif 800w" sizes="(max-width: 760px) calc(100vw - 40px), 540px"><img src="assets/plugins-800.webp" srcset="assets/plugins-480.webp 480w, assets/plugins-800.webp 800w" sizes="(max-width: 760px) calc(100vw - 40px), 540px" width="800" height="600" loading="lazy" decoding="async" alt="A party of hermit crabs swapping colorful shells, puzzle pieces floating above them"></picture>
-        <div><h3>Plugins</h3><p>Blocks and themes shared as git repositories, checked against a JSON schema. Nothing is fetched or run until you say yes.</p></div></li>
-    </ul>
-    <ul class="plain more">
-      <li class="reveal"><b>shkit</b>: one command to change settings, create project files, manage plugins and run <code>shkit doctor</code>. Changes apply at once.</li>
-      <li class="reveal"><b>Long commands notify you</b>: a desktop notification when one ends after 30 s.</li>
-      <li class="reveal"><b>Shell comforts</b>: jump to a visited directory by name, Esc Esc toggles <code>sudo</code>, shared unlimited history, colored <code>man</code>.</li>
-      <li class="reveal"><b>Self-updating</b>: daily, from releases that passed CI only. Local changes are never touched.</li>
-      <li class="reveal"><b>Bash fallback</b>: the same options and aliases, with a deliberately minimal prompt.</li>
-      <li class="reveal"><b>Secrets stay out</b>: tokens and machine settings live in <code>~/.config/shkit/</code>, never in the repository.</li>
-    </ul>
-  </div>
-</section>
-
-<section class="pad start" id="start" aria-labelledby="start-title">
-  <div class="wrap">
-    <h2 id="start-title">Quick start</h2>
-    <ol class="plain steps">
-      <li><div>
-        <h3>Clone and install</h3>
-        <p>Links <code>~/.zshrc</code> and <code>~/.zshenv</code>, creates <code>~/.config/shkit</code>.</p>
-        <div class="code"><pre><span class="p">$ </span>git clone https://github.com/fmatsos/shellkit.git ~/shellkit
-<span class="p">$ </span>~/shellkit/zsh/install.sh
-<span class="p">$ </span>exec zsh</pre><button type="button" class="copy">Copy<span class="sr-only"> the install commands</span></button></div>
-      </div></li>
-      <li><div>
-        <h3>Shape the prompt</h3>
-        <p>No shell file to edit by hand.</p>
-        <div class="code"><pre><span class="p">$ </span>shkit set format '{dir} · {git} · {mr}'   <span class="c"># the info line</span>
-<span class="p">$ </span>shkit set color_accent '38;5;33'           <span class="c"># a color role</span>
-<span class="p">$ </span>shkit project                              <span class="c"># settings for this repository only…</span>
-<span class="p">$ </span>shkit set -p format '{dir} · {git}'        <span class="c"># …used here and below</span>
-<span class="p">$ </span>shkit show                                 <span class="c"># what is set, where</span></pre><button type="button" class="copy">Copy<span class="sr-only"> the prompt commands</span></button></div>
-      </div></li>
-      <li><div>
-        <h3>Check everything</h3>
-        <p>Versions, locale, font, tools and files. A <a href="https://www.nerdfonts.com">Nerd Font</a> is recommended for the icons.</p>
-        <div class="code"><pre><span class="p">$ </span>shkit doctor</pre><button type="button" class="copy">Copy<span class="sr-only"> the doctor command</span></button></div>
-      </div></li>
-    </ol>
-
-    <div class="table" tabindex="0" role="region" aria-label="Requirements table">
-      <table>
-        <caption>Requirements</caption>
-        <thead><tr><th scope="col">Need</th><th scope="col">Linux</th><th scope="col">macOS</th></tr></thead>
-        <tbody>
-          <tr><th scope="row">shell</th><td>zsh 5.8+ (bash 5.1+ for the fallback)</td><td>the system zsh; <code>brew install bash</code> for the fallback</td></tr>
-          <tr><th scope="row">git</th><td>yes</td><td>yes (Command Line Tools or Homebrew)</td></tr>
-          <tr><th scope="row">jq</th><td><code>apt install jq</code></td><td>built in since macOS 15, <code>brew install jq</code> before</td></tr>
-          <tr><th scope="row">optional</th><td><code>glab</code> / <code>gh</code> (MR / PR and CI), <code>docker</code></td><td>the same, via Homebrew</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</section>
-
-<section class="pad" id="docs" aria-labelledby="docs-title">
-  <div class="wrap">
-    <h2 id="docs-title">Dig deeper</h2>
-    <ul class="plain docs-grid">
-      <li><a href="docs/installation.html"><b>Installation</b><span>requirements, Linux and macOS, bash fallback, updating</span></a></li>
-      <li><a href="docs/usage.html"><b>Usage</b><span>what the shells do for you day to day</span></a></li>
-      <li><a href="docs/configuration.html"><b>Configuration</b><span>where each setting lives and which one wins</span></a></li>
-      <li><a href="docs/shkit.html"><b><code>shkit</code> reference</b><span>the command that edits all of it</span></a></li>
-      <li><a href="docs/prompt.html"><b>The prompt</b><span>built-in blocks, format, colors, icons, behaviour</span></a></li>
-      <li><a href="docs/themes.html"><b>Writing a theme</b><span>A theme is a set of SHKIT_* assignments: layout, colors, icons</span></a></li>
-      <li><a href="docs/blocks.html"><b>Writing a block</b><span>A block is a zsh function, _prompt_seg_&lt;name&gt;, shown wherever a format has
-{name}.</span></a></li>
-      <li><a href="docs/plugins.html"><b>Plugins</b><span>installing, writing and publishing blocks and themes</span></a></li>
-      <li><a href="docs/development.html"><b>Development</b><span>working on shellkit itself</span></a></li>
-    </ul>
-  </div>
-</section>
-
+<nav class="pager" aria-label="Previous and next pages"><a class="prev" href="plugins.html"><small>Previous</small>Plugins</a></nav>
+</div>
+</div>
 </main>
 <footer class="foot">
   <div class="wrap">
-    <div class="dancer" aria-hidden="true"><img src="./assets/crab-dance.webp" alt="" width="768" height="128" loading="lazy"></div>
+    <div class="dancer" aria-hidden="true"><img src="../assets/crab-dance.webp" alt="" width="768" height="128" loading="lazy"></div>
     <nav aria-label="Footer">
       <ul class="plain">
-        <li><a href="./docs/">Documentation</a></li>
-        <li><a href="./sitemap.html">Site map</a></li>
+        <li><a href="../docs/">Documentation</a></li>
+        <li><a href="../sitemap.html">Site map</a></li>
         <li><a href="https://github.com/fmatsos/shellkit">Source on GitHub</a></li>
         <li><a href="https://github.com/fmatsos/shellkit/blob/main/LICENSE">License</a></li>
       </ul>
     </nav>
-    <p>shellkit is public domain (Unlicense). Fonts under the <a href="./assets/fonts/LICENSE.txt">SIL Open Font License</a>.</p>
+    <p>shellkit is public domain (Unlicense). Fonts under the <a href="../assets/fonts/LICENSE.txt">SIL Open Font License</a>.</p>
   </div>
 </footer>
 <p class="sr-only" role="status" id="status"></p>

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en" data-motion="off">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{title}}</title>
+<meta name="description" content="{{description}}">
+<link rel="canonical" href="{{url}}">
+<meta name="theme-color" content="#140f2e">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="shellkit">
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="{{og_title}}">
+<meta property="og:description" content="{{description}}">
+<meta property="og:url" content="{{url}}">
+<meta property="og:image" content="{{site}}assets/og.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="shellkit: an orange hermit crab in sunglasses, holding a wrench, dancing on a beach at sunset">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="{{root}}assets/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="{{root}}assets/apple-touch-icon.png">
+<link rel="preload" href="{{root}}assets/fonts/shrikhand.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="{{root}}assets/fonts/space-grotesk.woff2" as="font" type="font/woff2" crossorigin>
+{{head}}
+<style>
+{{css}}
+</style>
+<script>
+/* animations: on unless the visitor turned them off here, or asks for reduced motion */
+try { var m = localStorage.getItem("shkit-motion"); } catch (e) {}
+document.documentElement.dataset.motion = m || (matchMedia("(prefers-reduced-motion: reduce)").matches ? "off" : "on");
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="{{root}}"><img src="{{root}}assets/mascot-96.webp" alt="" width="96" height="96">shellkit</a>
+    <nav aria-label="Main">
+      <ul class="plain">
+        <li class="wide"><a href="{{root}}#features">Features</a></li>
+        <li class="wide"><a href="{{root}}#start">Quick start</a></li>
+        <li><a href="{{root}}docs/"{{docs_current}}>Docs</a></li>
+        <li><a href="https://github.com/fmatsos/shellkit">GitHub</a></li>
+      </ul>
+    </nav>
+    <button id="motion" type="button" aria-pressed="true" hidden><span aria-hidden="true" class="off">⏸</span><span aria-hidden="true" class="on">▶</span>Animations</button>
+  </div>
+</header>
+<main id="main" tabindex="-1">
+{{main}}
+</main>
+<footer class="foot">
+  <div class="wrap">
+    <div class="dancer" aria-hidden="true"><img src="{{root}}assets/crab-dance.webp" alt="" width="768" height="128" loading="lazy"></div>
+    <nav aria-label="Footer">
+      <ul class="plain">
+        <li><a href="{{root}}docs/">Documentation</a></li>
+        <li><a href="{{root}}sitemap.html"{{sitemap_current}}>Site map</a></li>
+        <li><a href="https://github.com/fmatsos/shellkit">Source on GitHub</a></li>
+        <li><a href="https://github.com/fmatsos/shellkit/blob/main/LICENSE">License</a></li>
+      </ul>
+    </nav>
+    <p>shellkit is public domain (Unlicense). Fonts under the <a href="{{root}}assets/fonts/LICENSE.txt">SIL Open Font License</a>.</p>
+  </div>
+</footer>
+<p class="sr-only" role="status" id="status"></p>
+<script>
+{{js}}
+</script>
+</body>
+</html>
