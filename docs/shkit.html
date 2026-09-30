@@ -159,7 +159,7 @@ html.landing.dragging { scroll-snap-type: none; scroll-behavior: auto; }
 
 .features { background: var(--navy); color: var(--cream); }
 .features h2 { color: var(--yellow); }
-.cards { position: relative; margin-top: 110px; }
+.cards { position: relative; margin-top: 110px; }  /* room for the crab standing on the cards */
 .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
 .card { background: var(--cream); color: var(--ink); border: 4px solid var(--ink); border-radius: var(--radius); box-shadow: 8px 8px 0 var(--c, var(--teal)); overflow: hidden; }
 .card img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-bottom: 4px solid var(--ink); }
@@ -169,8 +169,9 @@ html.landing.dragging { scroll-snap-type: none; scroll-behavior: auto; }
 .card:nth-child(2) { --c: var(--magenta); }
 .card:nth-child(3) { --c: var(--yellow); }
 .card:nth-child(4) { --c: var(--orange); }
-.walker.on-cards { bottom: auto; top: -92px; }
-@media (max-width: 1000px) { .grid { grid-template-columns: repeat(2, 1fr); } .walker.on-cards { display: none !important; } .cards { margin-top: 28px; } }
+.walker.on-cards { top: 0; bottom: auto; animation: none; }  /* placed and moved by site.js */
+@media (max-width: 1000px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px) { .cards { margin-top: 84px; } .walker.on-cards { width: 76px; height: 76px; } }
 @media (max-width: 640px) {  /* a sideways carousel: the four cards don't fit one screen */
   .grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 16px; padding: 4px 4px 16px; }
   .card { flex: 0 0 min(82%, 340px); scroll-snap-align: center; }
@@ -312,15 +313,6 @@ kbd { background: var(--paper); border: 2px solid var(--ink); border-bottom-widt
   0% { transform: translateX(-110px); } 49.9% { transform: translateX(calc(100vw + 10px)) scaleX(1); }
   50% { transform: translateX(calc(100vw + 10px)) scaleX(-1); } 100% { transform: translateX(-110px) scaleX(-1); }
 }
-/* the crab walks along the top of the four cards, and each one hops as it passes */
-@keyframes cardwalk {
-  0% { transform: translateX(0); } 49.9% { transform: translateX(calc(var(--cw, 600px) - 96px)) scaleX(1); }
-  50% { transform: translateX(calc(var(--cw, 600px) - 96px)) scaleX(-1); } 100% { transform: translateX(0) scaleX(-1); }
-}
-@keyframes hop0 { 2.5%, 6.5%, 93.5%, 97.5% { translate: 0 0; rotate: 0deg; } 4.5%, 95.5% { translate: 0 -16px; rotate: -2deg; } }
-@keyframes hop1 { 16%, 20%, 80%, 84% { translate: 0 0; rotate: 0deg; } 18%, 82% { translate: 0 -16px; rotate: 2deg; } }
-@keyframes hop2 { 30%, 34%, 66%, 70% { translate: 0 0; rotate: 0deg; } 32%, 68% { translate: 0 -16px; rotate: -2deg; } }
-@keyframes hop3 { 43.5%, 47.5%, 52.5%, 56.5% { translate: 0 0; rotate: 0deg; } 45.5%, 54.5% { translate: 0 -16px; rotate: 2deg; } }
 @keyframes wiggle { 25% { rotate: -2deg; } 75% { rotate: 2deg; } }
 @keyframes boing { 30% { scale: 1.12 .9; } 60% { scale: .95 1.08; } }
 @keyframes pop { to { transform: translate(var(--dx), var(--dy)) rotate(var(--r)); opacity: 0; } }
@@ -335,14 +327,8 @@ kbd { background: var(--paper); border: 2px solid var(--ink); border-bottom-widt
 [data-motion="on"] .hero::before, [data-motion="on"] .band::before { animation: spin 90s linear infinite; }
 [data-motion="on"] .art { animation: bob 5s ease-in-out infinite; transition: transform .2s; transform: rotate(2deg) perspective(900px) rotateX(var(--ty, 0deg)) rotateY(var(--tx, 0deg)); }
 [data-motion="on"] .walker { display: block; animation: walk 26s linear infinite; }
-[data-motion="on"] .walker.on-cards { animation: cardwalk 16s linear infinite; }
+[data-motion="on"] .walker.on-cards { animation: none; }
 [data-motion="on"] .walker img { animation: frames .7s steps(6) infinite; }
-@media (min-width: 1001px) {
-  [data-motion="on"] .card:nth-child(1) { animation: hop0 16s ease-in-out infinite; }
-  [data-motion="on"] .card:nth-child(2) { animation: hop1 16s ease-in-out infinite; }
-  [data-motion="on"] .card:nth-child(3) { animation: hop2 16s ease-in-out infinite; }
-  [data-motion="on"] .card:nth-child(4) { animation: hop3 16s ease-in-out infinite; }
-}
 [data-motion="on"] .buddy { display: block; }
 [data-motion="on"] .buddy img { animation: frames 1.3s steps(6) infinite; }
 [data-motion="on"] .dancer { animation: sway 3.2s ease-in-out infinite; }
@@ -629,9 +615,39 @@ go to stderr, prefixed with <code>shkit:</code>.</p>
     html.classList.toggle("snap", secs.every(s => s.offsetHeight <= room));
   };
   new ResizeObserver(fit).observe(top);
-  // how far the crab walks along the cards (--cw, in the walk keyframes)
-  const cards = document.querySelector(".cards");
-  new ResizeObserver(() => cards.style.setProperty("--cw", cards.clientWidth + "px")).observe(cards);
+  // the features' crab jumps from card to card, and each card gives under it; positions come
+  // from the cards themselves, so it works on 4 columns, 2 x 2 and the phone carousel alike
+  const cards = document.querySelector(".cards"), grid = cards.querySelector(".grid"), hopper = cards.querySelector(".walker");
+  const features = document.getElementById("features"), all = [...grid.children];
+  let at = -1, timer;
+  const spot = c => {  // standing on card c, in .cards coordinates
+    const r = cards.getBoundingClientRect(), k = c.getBoundingClientRect();
+    return [k.left - r.left + (k.width - hopper.offsetWidth) / 2, k.top - r.top - hopper.offsetHeight + 8];
+  };
+  const stand = () => { if (at >= 0) { const [x, y] = spot(all[at]); hopper.style.transform = `translate(${x}px, ${y}px)`; } };
+  const hop = () => {
+    clearTimeout(timer);
+    if (!on() || cur !== features) return;   // only while it can be seen
+    const g = grid.getBoundingClientRect();
+    // the cards fully in view, first row only: landing on a lower row would cover the text above it
+    const seen = all.filter(c => { const k = c.getBoundingClientRect(); return k.left >= g.left - 2 && k.right <= g.right + 2 && k.top < all[0].getBoundingClientRect().bottom; });
+    if (!seen.length) { timer = setTimeout(hop, 800); return; }
+    const next = seen.find(c => all.indexOf(c) > at) || seen[0];   // one card in view: it bounces on it
+    const from = at >= 0 ? spot(all[at]) : spot(next), to = spot(next);
+    const flip = to[0] < from[0] ? " scaleX(-1)" : "", peak = Math.min(from[1], to[1]) - 90;
+    const jump = hopper.animate([
+      { transform: `translate(${from[0]}px, ${from[1]}px)${flip}`, easing: "ease-out" },
+      { transform: `translate(${(from[0] + to[0]) / 2}px, ${peak}px)${flip}`, easing: "ease-in" },
+      { transform: `translate(${to[0]}px, ${to[1]}px)${flip}` }], { duration: 700, fill: "forwards" });
+    jump.onfinish = () => {
+      at = all.indexOf(next); stand(); jump.cancel();
+      next.animate([{ translate: "0 0" }, { translate: "0 12px", scale: "1.02 .96" }, { translate: "0 0" }], { duration: 400, easing: "ease-out" });
+      timer = setTimeout(hop, 1100);
+    };
+  };
+  btn.addEventListener("click", hop);
+  grid.addEventListener("scroll", stand, { passive: true });
+  addEventListener("resize", () => { hopper.getAnimations().forEach(a => a.cancel()); stand(); });
   addEventListener("resize", fit);
 
   // the section under the middle of the screen is the current one (the last one at the very bottom)
@@ -643,6 +659,7 @@ go to stderr, prefixed with <code>shkit:</code>.</p>
     cur = s;
     secs.forEach(x => x.classList.toggle("active", x === s));
     links.forEach(a => a.getAttribute("href") === "#" + s.id ? a.setAttribute("aria-current", "true") : a.removeAttribute("aria-current"));
+    hop();
   };
 
   // the rail: the crab thumb follows the scroll, and can be dragged; a click on the track jumps there

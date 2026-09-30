@@ -74,9 +74,39 @@
     html.classList.toggle("snap", secs.every(s => s.offsetHeight <= room));
   };
   new ResizeObserver(fit).observe(top);
-  // how far the crab walks along the cards (--cw, in the walk keyframes)
-  const cards = document.querySelector(".cards");
-  new ResizeObserver(() => cards.style.setProperty("--cw", cards.clientWidth + "px")).observe(cards);
+  // the features' crab jumps from card to card, and each card gives under it; positions come
+  // from the cards themselves, so it works on 4 columns, 2 x 2 and the phone carousel alike
+  const cards = document.querySelector(".cards"), grid = cards.querySelector(".grid"), hopper = cards.querySelector(".walker");
+  const features = document.getElementById("features"), all = [...grid.children];
+  let at = -1, timer;
+  const spot = c => {  // standing on card c, in .cards coordinates
+    const r = cards.getBoundingClientRect(), k = c.getBoundingClientRect();
+    return [k.left - r.left + (k.width - hopper.offsetWidth) / 2, k.top - r.top - hopper.offsetHeight + 8];
+  };
+  const stand = () => { if (at >= 0) { const [x, y] = spot(all[at]); hopper.style.transform = `translate(${x}px, ${y}px)`; } };
+  const hop = () => {
+    clearTimeout(timer);
+    if (!on() || cur !== features) return;   // only while it can be seen
+    const g = grid.getBoundingClientRect();
+    // the cards fully in view, first row only: landing on a lower row would cover the text above it
+    const seen = all.filter(c => { const k = c.getBoundingClientRect(); return k.left >= g.left - 2 && k.right <= g.right + 2 && k.top < all[0].getBoundingClientRect().bottom; });
+    if (!seen.length) { timer = setTimeout(hop, 800); return; }
+    const next = seen.find(c => all.indexOf(c) > at) || seen[0];   // one card in view: it bounces on it
+    const from = at >= 0 ? spot(all[at]) : spot(next), to = spot(next);
+    const flip = to[0] < from[0] ? " scaleX(-1)" : "", peak = Math.min(from[1], to[1]) - 90;
+    const jump = hopper.animate([
+      { transform: `translate(${from[0]}px, ${from[1]}px)${flip}`, easing: "ease-out" },
+      { transform: `translate(${(from[0] + to[0]) / 2}px, ${peak}px)${flip}`, easing: "ease-in" },
+      { transform: `translate(${to[0]}px, ${to[1]}px)${flip}` }], { duration: 700, fill: "forwards" });
+    jump.onfinish = () => {
+      at = all.indexOf(next); stand(); jump.cancel();
+      next.animate([{ translate: "0 0" }, { translate: "0 12px", scale: "1.02 .96" }, { translate: "0 0" }], { duration: 400, easing: "ease-out" });
+      timer = setTimeout(hop, 1100);
+    };
+  };
+  btn.addEventListener("click", hop);
+  grid.addEventListener("scroll", stand, { passive: true });
+  addEventListener("resize", () => { hopper.getAnimations().forEach(a => a.cancel()); stand(); });
   addEventListener("resize", fit);
 
   // the section under the middle of the screen is the current one (the last one at the very bottom)
@@ -88,6 +118,7 @@
     cur = s;
     secs.forEach(x => x.classList.toggle("active", x === s));
     links.forEach(a => a.getAttribute("href") === "#" + s.id ? a.setAttribute("aria-current", "true") : a.removeAttribute("aria-current"));
+    hop();
   };
 
   // the rail: the crab thumb follows the scroll, and can be dragged; a click on the track jumps there
