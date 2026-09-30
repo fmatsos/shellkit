@@ -12,7 +12,7 @@ on `add` and on each `update`:
 ```
 plugin.json          # name, version, description, the declared blocks and themes
 blocks/<name>.zsh    # one per declared block: defines _prompt_seg_<name>, shown as {name}
-themes/<name>.zsh    # one per declared theme: PROMPT_* assignments
+themes/<name>.zsh    # one per declared theme: SHKIT_* assignments
 ```
 
 Other files (README, LICENSE, tests, CI) are free. `zsh/plugin/example/` is a
@@ -24,7 +24,7 @@ Let `shkit` write the layout: it keeps `plugin.json` and the files in step.
 
 1. `shkit plugin new NAME [DIR]`: `plugin.json` + `git init`. NAME is
    `[a-z0-9-]`, it becomes the install directory and the theme prefix
-   (`PROMPT_THEME=NAME/<theme>`), and it can never change: an update that renames
+   (`SHKIT_THEME=NAME/<theme>`), and it can never change: an update that renames
    the plugin is refused.
 2. In the repository:
    - `shkit plugin new-block NAME 'what it shows'`: `blocks/NAME.zsh` from a
@@ -46,7 +46,7 @@ Same contract as a built-in segment (the `prompt-theme` skill has the engine):
 
 ```zsh
 # blocks/php.zsh -> {php}
-: ${PROMPT_COLOR_PHP:='38;5;104'} ${PROMPT_ICON_PHP=$''}   # own defaults, overridable
+: ${SHKIT_COLOR_PHP:='38;5;104'} ${SHKIT_ICON_PHP=$''}   # own defaults, overridable
 function _prompt_seg_php {
   [[ -f composer.json ]] || return 0              # nothing appended = block hidden, its separator too
   local v='?'; [[ -r .php-version ]] && v=$(<.php-version)
@@ -79,8 +79,8 @@ function _prompt_seg_php {
 
 ## A theme
 
-`PROMPT_*` assignments only: `PROMPT_FORMAT`, `PROMPT_RIGHT_FORMAT`, `PROMPT_SEPARATOR`,
-`PROMPT_COLOR_<ROLE>`, `PROMPT_ICON_<NAME>`, `PROMPT_SPINNER`. `shkit list`
+`SHKIT_*` assignments only: `SHKIT_FORMAT`, `SHKIT_RIGHT_FORMAT`, `SHKIT_SEPARATOR`,
+`SHKIT_COLOR_<ROLE>`, `SHKIT_ICON_<NAME>`, `SHKIT_SPINNER`. `shkit list`
 shows every name. Plain `NAME=value` lines, no commands.
 
 A theme sits under the user's `theme.zsh` and project files, which always win. So

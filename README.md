@@ -25,14 +25,19 @@ There's no framework (no Oh My Zsh, no Oh My Bash) and zsh starts in about 35 ms
   press Enter.
 - **Git at a glance**: branch, worktree, ahead / behind, dirty files with a diff
   stat, and a rebase / merge / cherry-pick / bisect in progress with its conflicts.
+  Also the ticket of the branch, and the review of its merge / pull request.
+- **Built-in blocks that stay quiet**: a compose stack's health, how long the last
+  command took, why it failed, `user@host` over SSH. Each shows only when it has
+  something to say.
+- **Long commands notify you**: a desktop notification when one ends after 30 s.
 - **Themes and blocks**: the layout is a format string such as `'{dir} · {git}'`.
   Colors are roles, icons are variables, and a block is a small zsh function.
 - **Per-project settings**: another format or palette for one repository and
   everything below it.
 - **Plugins**: blocks and themes shared as git repositories. Each is checked
   against a JSON schema, and nothing is fetched or run until you confirm.
-- **`shkit`**: one command to change settings, create project files and manage
-  plugins. It applies every change immediately, so you never edit shell files by hand.
+- **`shkit`**: one command to change settings, create project files, manage
+  plugins and check the setup (`shkit doctor`). It applies every change immediately, so you never edit shell files by hand.
 - **Shell comforts**: jump to a visited directory by its name, Esc Esc toggles
   `sudo`, an unlimited shared history with prefix search, and colored `man`.
 - **Self-updating**: a background job at startup moves to the latest release,

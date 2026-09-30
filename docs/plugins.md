@@ -86,7 +86,7 @@ The result:
 prompt-extras/
 ├── plugin.json        # the manifest
 ├── blocks/php.zsh     # defines _prompt_seg_php, shown as {php}
-└── themes/dark.zsh    # PROMPT_* assignments
+└── themes/dark.zsh    # SHKIT_* assignments
 ```
 
 Other files (README, LICENSE, tests, CI) are free. `blocks/` and `themes/` must

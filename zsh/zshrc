@@ -118,7 +118,7 @@ function _git-task {
 }
 
 # --- This machine only (never committed); before the prompt, whose toggles
-#     (PROMPT_SHOW_MR=false…) it may set.
+#     (SHKIT_SHOW_MR=false…) it may set.
 [[ -r $SHELL_LOCAL_DIR/settings.sh ]] && . $SHELL_LOCAL_DIR/settings.sh
 # theme.zsh, projects/ and plugins/ are read by prompt.zsh, in layers.
 

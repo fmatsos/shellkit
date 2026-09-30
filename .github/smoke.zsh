@@ -21,5 +21,6 @@ shkit plugin add -y $t/ex >/dev/null && shkit set theme example/mono >/dev/null 
 cd $t/repo; _prompt_precmd >/dev/null; p=${(%)PROMPT}
 [[ $p == *☺* && $p == *$'\e[38;5;42m'* ]]; ok $? "plugin: add (jq, git), theme, block rendered" "$p"
 shkit unset format >/dev/null; shkit unset theme >/dev/null; shkit plugin remove example >/dev/null
+d=$(shkit doctor 2>&1); ok $? "shkit doctor: no failure" "${(M)${(f)d}:#FAIL*}"
 
 exit $fail

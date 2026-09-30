@@ -3,9 +3,9 @@
 # current project's file (-p), then applies the change to this shell.
 #
 #   shkit show                    active project, settings in its files, blocks
-#   shkit list                    every PROMPT_* in effect here
+#   shkit list                    every SHKIT_* in effect here
 #   shkit set [-p] NAME VALUE…    NAME = format, right_format, color_accent,
-#                                     icon_dirty, show_mr… (PROMPT_<NAME>); several
+#                                     icon_dirty, show_mr… (SHKIT_<NAME>); several
 #                                     VALUEs = an array (quota_palette, spinner)
 #   shkit unset [-p] NAME
 #   shkit project [DIR]           a settings file for DIR and below (default: the
@@ -22,6 +22,7 @@
 #   shkit set theme PLUGIN/THEME  a plugin's theme, under theme.zsh (-p: one project)
 #   shkit update [-y]             shellkit itself, to its latest release (branch release);
 #                                     also done in the background at startup, daily
+#   shkit doctor                  checks the setup: versions, locale, font, tools, files, plugins
 #
 # Values are written quoted: a file it writes never runs what a value contains.
 # A plugin IS code run by every shell: nothing is fetched unless asked, and each
@@ -39,8 +40,8 @@ function shkit {
   fi
   case $cmd in
   (set|unset)
-    name=${(U)1//[.-]/_}; name=PROMPT_${name#PROMPT_}
-    [[ $name =~ '^PROMPT_[A-Z0-9_]+$' && $name != PROMPT_PROJECT_DIR ]] ||
+    name=${(U)1//[.-]/_}; name=SHKIT_${${name#SHKIT_}#PROMPT_}
+    [[ $name =~ '^SHKIT_[A-Z0-9_]+$' && $name != SHKIT_PROJECT_DIR ]] ||
       { print -u2 "shkit: bad name '$1'"; return 1 }
     shift
     local line=
@@ -61,7 +62,7 @@ function shkit {
       command mkdir -p $d/projects
       print -rl -- "# Prompt settings for ${dir/#$HOME/~} and below, over theme.zsh." \
         "# Change them with: shkit set -p NAME VALUE (see: shkit list)" \
-        "PROMPT_PROJECT_DIR=${(q-)${dir/#$HOME/~}}" >| $file
+        "SHKIT_PROJECT_DIR=${(q-)${dir/#$HOME/~}}" >| $file
       _prompt_projects_load; _shkit_reset
     fi
     print -r -- ${file/#$HOME/~} ;;
@@ -74,18 +75,20 @@ function shkit {
     for f in $d/theme.zsh $_prompt_project; do
       [[ -r $f ]] || continue
       print -r -- "${f/#$HOME/~}:"
-      print -rl -- "  "${^${(M)${(f)"$(<$f)"}:#PROMPT_*}}
+      print -rl -- "  "${^${(M)${(f)"$(<$f)"}:#(SHKIT|PROMPT)_*}}
     done
     print -r -- "blocks: ${(j: :)${(@)${(@ok)functions[(I)_prompt_seg_*]}#_prompt_seg_}}"
     print -r -- "themes: ${(j: :)${(@)${(@f)$(_shkit_themes)}:-none}}" ;;
   (list)
-    typeset -m 'PROMPT_*' ;;
+    typeset -m 'SHKIT_*' ;;
   (plugin)
     _shkit_plugin $d/plugins "$@" ;;
   (update)
     _shkit_update "$@" ;;
+  (doctor)
+    _shkit_doctor ;;
   (*)
-    print -u2 "usage: shkit show | list | set [-p] NAME VALUE… | unset [-p] NAME | project [DIR] | edit [-p] | plugin add|update|remove|list|new|new-block|new-theme|check | update [-y]"
+    print -u2 "usage: shkit show | list | set [-p] NAME VALUE… | unset [-p] NAME | project [DIR] | edit [-p] | plugin add|update|remove|list|new|new-block|new-theme|check | update [-y] | doctor"
     return 1 ;;
   esac
 }
@@ -93,7 +96,10 @@ function shkit {
 function _shkit_write { # FILE NAME [LINE] — NAME's line replaced (or appended); no LINE = removed
   local f=$1 n=$2 l=$3
   local -a lines=()
-  [[ -r $f ]] && lines=("${(@f)$(<$f)}")
+  setopt localoptions extendedglob
+  [[ -r $f ]] && lines=("${(@f)$(<$f)}") &&
+    lines=("${(@)lines//(#b)((#s)|[[:space:]\#])PROMPT_([A-Z0-9_]##=)/$match[1]SHKIT_$match[2]}") &&   # 1.0's names: renamed,
+    lines=("${(@)lines//(#b)SHKIT_(${~_prompt_foreign#PROMPT_})=/PROMPT_$match[1]=}")                       # not bash's or zsh's
   integer i=${lines[(i)$n=*]}
   if [[ -z $l ]]; then lines=("${(@)lines:#$n=*}")
   elif (( i <= $#lines )); then lines[i]=$l
@@ -169,7 +175,7 @@ function _shkit_plugin { # ROOT SUB [-y] ARGS…
     command rm -rf -- $root/$name
     _prompt_load_blocks; _shkit_reset
     print -r -- "removed; its blocks stay defined in the shells already open (exec zsh)"
-    [[ $PROMPT_THEME == $name/* ]] && print -r -- "PROMPT_THEME is still $PROMPT_THEME: shkit unset theme" ;;
+    [[ $SHKIT_THEME == $name/* ]] && print -r -- "SHKIT_THEME is still $SHKIT_THEME: shkit unset theme" ;;
   (new)
     name=$1 dir=${${2:-$PWD/$1}:a}
     [[ $name =~ '^[a-z0-9][a-z0-9-]*$' ]] || { print -u2 "usage: shkit plugin new NAME [DIR] (NAME: a-z, 0-9, -)"; return 1 }
@@ -205,8 +211,8 @@ function _shkit_plugin { # ROOT SUB [-y] ARGS…
         "  segs+=\"\${_c_accent}\${REPLY}\${_c_reset}\"   # colors: \$_c_<role>, icons: \$_i_<name>" \
         "}" >| $f
     else
-      print -rl -- "# $desc — PROMPT_* assignments only (shkit list: every name)." \
-        "PROMPT_COLOR_ACCENT='36'" >| $f
+      print -rl -- "# $desc — SHKIT_* assignments only (shkit list: every name)." \
+        "SHKIT_COLOR_ACCENT='36'" >| $f
     fi
     jq --arg k $kind --arg n $name --arg d $desc '.[$k] = ((.[$k] // []) + [{name: $n, description: $d}])' \
       $top/plugin.json >| $top/plugin.json.new && command mv -f $top/plugin.json.new $top/plugin.json
@@ -280,6 +286,91 @@ function _shkit_autoupdate {
   (( EPOCHSECONDS - _ts >= ${SHKIT_UPDATE_TTL:-86400} )) && _prompt_spawn $file _shkit_job_update $file
 }
 
+# One line per check: ok, warn (works, with less), FAIL (broken: exit 1), -- (not in use).
+# Local only, but for the logins of glab / gh, whose status is shown, never their output.
+function _shkit_say { print -r -- "${(r:5:)1}$2"; [[ $1 == FAIL ]] && bad=1; }   # bad: _shkit_doctor's
+function _shkit_doctor {
+  local r=$_shkit_root d=${SHELL_LOCAL_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/shkit} v f c _ts _data
+  local -a m fonts
+  integer bad=0
+  autoload -Uz is-at-least
+  if is-at-least 5.8; then _shkit_say ok "zsh $ZSH_VERSION"; else _shkit_say FAIL "zsh $ZSH_VERSION: 5.8+ needed"; fi
+  [[ $(git --version 2>/dev/null) =~ '[0-9]+\.[0-9]+(\.[0-9]+)?' ]] && v=$MATCH || v=
+  if [[ -n $v ]] && is-at-least 2.31 $v; then _shkit_say ok "git $v"; else _shkit_say FAIL "git ${v:-not found}: 2.31+ needed"; fi
+  v=${LC_ALL:-${LC_CTYPE:-$LANG}}   # the codeset in effect: macOS' plain UTF-8 too, not a locale set but not installed
+  zmodload zsh/langinfo 2>/dev/null && c=$langinfo[CODESET] || c=${v##*.}
+  if [[ $c == (UTF-8|utf-8|UTF8|utf8) ]]; then _shkit_say ok "locale ${v:-C} ($c)"; else _shkit_say FAIL "locale '${v:-none}': not UTF-8, icons can't show"; fi
+  if (( $+commands[fc-list] )); then fonts=(${(f)"$(fc-list 2>/dev/null | grep -i 'nerd')"})
+  else fonts=({~/.local/share/fonts,~/Library/Fonts,/Library/Fonts,/usr/share/fonts}/**/*[Nn]erd*(N.))
+  fi
+  if (( $#fonts )); then _shkit_say ok "a Nerd Font is installed (the terminal must use it, or fall back to it)"
+  else _shkit_say warn "no Nerd Font found: some icons show as boxes (docs/installation.md)"; fi
+  if (( $+commands[bash] )); then
+    v=$(bash -c 'echo ${BASH_VERSINFO[0]}.${BASH_VERSINFO[1]}' 2>/dev/null)
+    if is-at-least 5.1 $v; then _shkit_say ok "bash $v (fallback)"; else _shkit_say warn "bash $v: the bash config needs 5.1+"; fi
+  fi
+
+  if (( $+commands[jq] )); then _shkit_say ok jq; else _shkit_say warn "jq not installed: no {mr} / {review} on GitLab, no plugins"; fi
+  for c in glab gh; do
+    if (( ! $+commands[$c] )); then _shkit_say -- "$c not installed (${${c:#gh}:+GitLab}${${c:#glab}:+GitHub} MR / PR)"
+    else
+      v=$(_prompt_timeout 10 $c auth status 2>&1)   # read, never printed (it may hold a token)
+      if (( ! $? )); then _shkit_say ok "$c, logged in"
+      elif [[ $v == *'Logged in to'* ]]; then _shkit_say warn "$c: a configured host rejects its login ($c auth status)"
+      else _shkit_say warn "$c: not logged in ($c auth login), no MR / PR"; fi
+    fi
+  done
+  if (( ! $+commands[docker] )); then _shkit_say -- "docker not installed"
+  elif _prompt_timeout 5 docker ps -q >/dev/null 2>&1; then _shkit_say ok docker
+  else _shkit_say warn "docker: the daemon doesn't answer, no {docker} / {stack}"; fi
+  if [[ $SHKIT_NOTIFY != true ]] || (( SHKIT_NOTIFY_AFTER <= 0 )); then _shkit_say -- "notifications off (SHKIT_NOTIFY)"
+  elif [[ -n $SSH_CONNECTION ]]; then _shkit_say ok "notifications after ${SHKIT_NOTIFY_AFTER}s: the bell (SSH)"
+  elif (( $+commands[notify-send] || $+commands[osascript] )); then _shkit_say ok "notifications after ${SHKIT_NOTIFY_AFTER}s"
+  else _shkit_say warn "no notify-send: a long command only rings the bell"; fi
+
+  [[ -d ${d%/*}/shell ]] && _shkit_say warn "${${d%/*}/#$HOME/~}/shell: not migrated (shell/install-local.sh)"
+  if [[ ! -d $d ]]; then _shkit_say FAIL "${d/#$HOME/~}: missing (shell/install-local.sh)"
+  else
+    zstat -A m -o +mode $d
+    if (( ! (8#${m[1]: -3} & 8#077) )); then _shkit_say ok "${d/#$HOME/~} (700)"; else _shkit_say warn "${d/#$HOME/~}: chmod 700 (is ${m[1]: -3})"; fi
+    f=$d/secrets.sh
+    if [[ -e $f ]]; then
+      zstat -A m -o +mode $f
+      if (( ! (8#${m[1]: -3} & 8#077) )); then _shkit_say ok "secrets.sh (600)"; else _shkit_say FAIL "secrets.sh: readable by others, chmod 600 (is ${m[1]: -3})"; fi
+    fi
+  fi
+  local -a old=()
+  for f in $d/{settings.sh,theme.zsh}(N) $d/projects/*.zsh(N); do   # 1.0's names, not bash's or zsh's own
+    v=${"$(<$f)"//${~_prompt_foreign}=/}
+    [[ $v =~ '(^|[[:space:]#])PROMPT_[A-Z0-9_]+=' ]] && old+=$f
+  done
+  m=($old)
+  (( $#m )) && _shkit_say warn "shellkit 1.0 names (PROMPT_*) in ${(j:, :)${m:t}}: still read; shell/install-local.sh renames them"
+  f=${ZDOTDIR:-$HOME}/.zshrc
+  [[ ${f:A} == $r/zsh/zshrc ]] || _shkit_say warn "${f/#$HOME/~} doesn't link to $r/zsh/zshrc (zsh/install.sh)"
+  [[ -w $_prompt_cache ]] || _shkit_say FAIL "$_prompt_cache: not writable, the prompt can't cache"
+
+  v=$(git -C $r describe --tags --always 2>/dev/null)
+  c=$(git -C $r symbolic-ref -q --short HEAD)
+  if [[ -z $c ]]; then _shkit_say warn "shellkit $v: not on a branch, no update"
+  elif [[ -n $(git -C $r status --porcelain -uno 2>/dev/null) ]]; then _shkit_say warn "shellkit $v: local changes, no auto-update"
+  else _shkit_say ok "shellkit $v ($c)"; fi
+  if git -C $r rev-parse -q --verify origin/release >/dev/null && ! git -C $r merge-base --is-ancestor origin/release HEAD; then
+    _shkit_say warn "release $(git -C $r describe --tags --always origin/release) is out: shkit update"
+  fi
+  _prompt_key shkit-update; _prompt_read $REPLY
+  if [[ ${SHKIT_AUTO_UPDATE:-true} != true ]]; then _shkit_say -- "auto-update off (SHKIT_AUTO_UPDATE)"
+  elif (( _ts )); then strftime -s v '%F %H:%M' $_ts; _shkit_say ok "auto-update, last check $v"
+  else _shkit_say ok "auto-update, not checked yet"; fi
+
+  if [[ -n $SHKIT_THEME && -z ${(M)${(f)"$(_shkit_themes)"}:#$SHKIT_THEME} ]]; then _shkit_say FAIL "theme $SHKIT_THEME: not installed"; fi
+  for f in $d/plugins/*(N/); do
+    if v=$(_shkit_check $f HEAD 2>&1); then _shkit_say ok "plugin ${f:t}"
+    else _shkit_say FAIL "plugin ${f:t}: ${${(f)v}[1]#shkit: }"; fi
+  done
+  return bad
+}
+
 typeset -g _shkit_schema=${${(%):-%x}:A:h}/plugin   # schema.json, validate.jq
 
 function _shkit_cat { # DIR REV FILE -> the file at REV ('' = the working tree)
@@ -327,8 +418,8 @@ function _shkit_check {
 }
 
 function _shkit_complete {
-  local -a names=(${(L)${(k)parameters[(I)PROMPT_*]}#prompt_})
-  if (( CURRENT == 2 )); then compadd show list set unset project edit plugin update
+  local -a names=(${(L)${(k)parameters[(I)SHKIT_*]}#shkit_})
+  if (( CURRENT == 2 )); then compadd show list set unset project edit plugin update doctor
   elif [[ $words[2] == set && $words[CURRENT-1] == theme ]]; then compadd -- ${(f)"$(_shkit_themes)"}
   elif [[ $words[2] == (set|unset) ]]; then compadd -- -p ${names:#project_dir}
   elif [[ $words[2] == plugin && CURRENT -eq 3 ]]; then compadd add update remove list new new-block new-theme check

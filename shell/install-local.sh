@@ -20,6 +20,16 @@ for m in settings.local:settings.sh secrets.local:secrets.sh theme.local:theme.z
   [[ -e $old ]] && echo "note: $old left in place, $new already exists: merge by hand" >&2 || echo "$old -> $new"
 done
 [[ ! -e $d/secrets.sh ]] || chmod 600 "$d/secrets.sh"
+# shellkit 1.0 named the prompt settings PROMPT_*, 1.1 SHKIT_* (the old names are still read)
+for f in "$d/settings.sh" "$d/theme.zsh" "$d"/projects/*.zsh; do
+  # bash's and zsh's own (PROMPT_COMMAND, PROMPT_EOL_MARK…) set aside first: never renamed
+  keep='s/PROMPT_(COMMAND|DIRTRIM|EOL_MARK)=/@SHKIT_KEEP@\1=/g'
+  [[ -f $f ]] && sed -E "$keep" "$f" | grep -Eq '(^|[[:space:]#])PROMPT_[A-Z0-9_]+=' || continue   # commented-out examples too
+  cp -p "$f" "$f.bak"
+  sed -E -e "$keep" -e 's/^PROMPT_([A-Z0-9_]+=)/SHKIT_\1/' -e 's/([[:space:]#])PROMPT_([A-Z0-9_]+=)/\1SHKIT_\2/g' \
+    -e 's/@SHKIT_KEEP@/PROMPT_/g' "$f" > "$f.new" && cat "$f.new" > "$f" && rm "$f.new"   # cat: keeps the mode
+  echo "$f: PROMPT_* -> SHKIT_* (before: $f.bak)"
+done
 for f in settings.sh secrets.sh; do
   [[ -e $d/$f ]] || echo "note: $d/$f not found (optional)"
 done

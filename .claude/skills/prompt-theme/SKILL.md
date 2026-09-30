@@ -15,28 +15,28 @@ The prompt reuses its color roles and its quota gradient.
 ## Anatomy
 
 - **Layers** (`_prompt_compose`, at load, on a project switch, after each `shkit`),
-  each over the one before; every `PROMPT_*` is rebuilt from them:
+  each over the one before; every `SHKIT_*` is rebuilt from them:
   1. defaults: `_prompt_defaults` in `prompt.zsh`, then the blocks' own;
-  2. `PROMPT_THEME`'s file, `plugins/<plugin>/themes/<theme>.zsh`;
+  2. `SHKIT_THEME`'s file, `plugins/<plugin>/themes/<theme>.zsh`;
   3. `settings.sh` and the environment, as they were when `prompt.zsh` loaded;
   4. `~/.config/shkit/theme.zsh` (read by `prompt.zsh`, not by `zshrc`);
   5. the project file.
 
   Files are sourced inside a function: plain assignments only (`typeset` alone makes a local).
-  A `PROMPT_*` typed at the shell lasts until the next compose.
+  A `SHKIT_*` typed at the shell lasts until the next compose.
 - **Theme** variables:
-  - `PROMPT_FORMAT` (info line) and `PROMPT_RIGHT_FORMAT` (right end of the info
+  - `SHKIT_FORMAT` (info line) and `SHKIT_RIGHT_FORMAT` (right end of the info
     line, padded to `$COLUMNS` by `_prompt_render`, dropped when it can't fit, again on
     `TRAPWINCH`; the input line holds only the `$`): see **Layout** below;
-  - `PROMPT_SEPARATOR`: between the parts of one block (`{git}`: branch · status · rebase);
-  - `PROMPT_COLOR_<ROLE>`: an SGR code, compiled at load into `$_c_<role>`;
-  - `PROMPT_ICON_<NAME>`: compiled into `$_i_<name>`, %-escaped; the ones followed by
+  - `SHKIT_SEPARATOR`: between the parts of one block (`{git}`: branch · status · rebase);
+  - `SHKIT_COLOR_<ROLE>`: an SGR code, compiled at load into `$_c_<role>`;
+  - `SHKIT_ICON_<NAME>`: compiled into `$_i_<name>`, %-escaped; the ones followed by
     a space get it only when non-empty;
-  - `PROMPT_SPINNER` (tab title).
-- **Behaviour** (in `~/.config/shkit/settings.sh`): `PROMPT_SHOW_MR`, `PROMPT_QUOTA_RESET_AT`, `PROMPT_AUTO_FETCH`,
-  `PROMPT_TITLE_SPINNER`, `PROMPT_*_TTL`, `PROMPT_DIFF_MAX_FILES`.
+  - `SHKIT_SPINNER` (tab title).
+- **Behaviour** (in `~/.config/shkit/settings.sh`): `SHKIT_SHOW_MR`, `SHKIT_QUOTA_RESET_AT`, `SHKIT_AUTO_FETCH`,
+  `SHKIT_TITLE_SPINNER`, `SHKIT_*_TTL`, `SHKIT_DIFF_MAX_FILES`.
 - **Segment** (= a `{name}` block): `_prompt_seg_<name>` appends its string(s) to
-  `segs` (several are joined with `PROMPT_SEPARATOR`), and appends to `pending` the
+  `segs` (several are joined with `SHKIT_SEPARATOR`), and appends to `pending` the
   cache files whose refresh is in flight. `{mr}` reads `_git` (common dir, branch,
   top), which `{git}` sets: it shows nothing without `{git}` earlier on the line.
 - **Format engine**: `_prompt_compile SIDE FORMAT` parses a format into
@@ -53,10 +53,11 @@ The prompt reuses its color roles and its quota gradient.
   title. `zle -F` then runs `_prompt_async_done`, which re-renders and calls
   `zle reset-prompt`.
 
-## Layout (`PROMPT_FORMAT`, `PROMPT_RIGHT_FORMAT`)
+## Layout (`SHKIT_FORMAT`, `SHKIT_RIGHT_FORMAT`)
 
-Defaults: `'{dir} · {git} · {mr} · {docker}'` and `'{agents} · {quota}'`.
-Blocks: `dir`, `git`, `mr`, `docker`, `agents`, `quota`, plus local ones
+Defaults: `'{host} · {dir} · {git} · {ticket} · {mr}  {review} · {stack} · {docker} · {duration} · {status}'`
+and `'{agents} · {quota}'`. Blocks: `host`, `dir`, `git`, `ticket`, `mr`, `review`, `stack`,
+`docker`, `duration`, `status`, `agents`, `quota`, plus local ones
 (`~/.config/shkit/prompt.d/`, below). To change the bar, edit the
 string in `~/.config/shkit/theme.zsh` (a block can move from one side to the other).
 
@@ -73,24 +74,24 @@ string in `~/.config/shkit/theme.zsh` (a block can move from one side to the oth
 ## Adding a segment
 
 1. Write `_prompt_seg_<name>`: colors from `$_c_<role>` only, glyphs from
-   `$_i_<name>` only (add `PROMPT_ICON_<NAME>` to the defaults and to the right
+   `$_i_<name>` only (add `SHKIT_ICON_<NAME>` to the defaults and to the right
    compile loop). Every dynamic text goes through `_prompt_esc` before it enters `segs`.
 2. Local and fast → compute inline. Anything networked or > a few ms → a job plus
    the cache, never inline.
-3. Add its `{name}` to the `PROMPT_FORMAT` or `PROMPT_RIGHT_FORMAT` default and to
+3. Add its `{name}` to the `SHKIT_FORMAT` or `SHKIT_RIGHT_FORMAT` default and to
    the block list above, and list the new variables in `README.md` and the
    commented template of `~/.config/shkit/theme.zsh`.
 4. Add a check to `zsh/prompt.check.zsh`, then run the `config-commit` checks.
 
 ## Per project (`~/.config/shkit/projects/<name>.zsh`) and `shkit`
 
-- A project file starts with `PROMPT_PROJECT_DIR='~/code/shop'`: read (not run) at load
+- A project file starts with `SHKIT_PROJECT_DIR='~/code/shop'`: read (not run) at load
   by `_prompt_projects_load`. In that directory and below (worktrees inside
   included; the deepest one wins), `_prompt_project_switch` (start of every render,
   a string compare unless the project changed) composes the layers with it; leaving
   composes them without it.
-- Any `PROMPT_*` can be overridden per project (formats, colors, icons, `SHOW_MR`, TTLs).
-  `PROMPT_THEME` too. Blocks stay global (`prompt.d/`, plugins): a project's format picks them.
+- Any `SHKIT_*` can be overridden per project (formats, colors, icons, `SHOW_MR`, TTLs).
+  `SHKIT_THEME` too. Blocks stay global (`prompt.d/`, plugins): a project's format picks them.
 - Keyed by path, not by repo: no git call before rendering, works outside git.
   Not a `.prompt` file inside the project: a cloned repo would run code on `cd`.
 - `shkit` (`zsh/shkit.zsh`) edits these files for the user: `set [-p] NAME
@@ -107,7 +108,7 @@ URL`. Its layout is fixed, like a Claude Code plugin's:
 ```
 plugin.json          # manifest: follows zsh/plugin/schema.json
 blocks/<name>.zsh    # _prompt_seg_<name>, same contract as a local block (below)
-themes/<name>.zsh    # PROMPT_* assignments; picked with: shkit set theme <plugin>/<name>
+themes/<name>.zsh    # SHKIT_* assignments; picked with: shkit set theme <plugin>/<name>
 ```
 
 - `plugin.json`: `name` (the install directory and theme prefix, never renamed),
@@ -134,7 +135,7 @@ themes/<name>.zsh    # PROMPT_* assignments; picked with: shkit set theme <plugi
   - `update` fetches, shows `log` + `diff --stat`, asks, then `merge --ff-only`, and
     refuses a rewritten history;
   - `-y` skips the question (scripts, the check).
-- Names are checked: a plugin is `[A-Za-z0-9_][A-Za-z0-9._-]*`, `PROMPT_THEME` is
+- Names are checked: a plugin is `[A-Za-z0-9_][A-Za-z0-9._-]*`, `SHKIT_THEME` is
   `<plugin>/<theme>`, never a path. The URL goes after `git clone --`.
 - Rule #1: a URL's `user:token@` is never printed (`_shkit_url`); prefer ssh URLs
   or a credential helper.
@@ -148,7 +149,7 @@ compiled, so a file can set its own color/icon defaults:
 
 ```zsh
 # ~/.config/shkit/prompt.d/php.zsh -> {php}
-: ${PROMPT_COLOR_PHP:='38;5;104'} ${PROMPT_ICON_PHP=$'\ue73d'}
+: ${SHKIT_COLOR_PHP:='38;5;104'} ${SHKIT_ICON_PHP=$'\ue73d'}
 function _prompt_seg_php {
   [[ -f composer.json ]] || return 0             # nothing = block hidden, its separator too
   local v='?'; [[ -r .php-version ]] && v=$(<.php-version)
@@ -157,8 +158,8 @@ function _prompt_seg_php {
 }
 ```
 
-- Contract: append to `segs` (several strings = joined with `PROMPT_SEPARATOR`);
-  `$_c_<role>` / `$_i_<name>` exist for every `PROMPT_COLOR_*` / `PROMPT_ICON_*`
+- Contract: append to `segs` (several strings = joined with `SHKIT_SEPARATOR`);
+  `$_c_<role>` / `$_i_<name>` exist for every `SHKIT_COLOR_*` / `SHKIT_ICON_*`
   (an icon gets no trailing space); `_prompt_esc` on every dynamic text; the name
   matches `[a-z0-9_]+`.
 - Same name as a built-in (`_prompt_seg_docker`) = overrides it.
@@ -178,7 +179,7 @@ function _prompt_seg_php {
 - **Budget**: the synchronous path < 50 ms on a large repository (~35k files). Measure it in
   a large repo: `zsh -c 'source zsh/prompt.zsh; time (repeat 20 _prompt_render)'` (total / 20; ~22 ms on a 35k-file repository).
   Hence `git status -uno` (18 ms vs 114 ms) and no diff stat above
-  `PROMPT_DIFF_MAX_FILES`.
+  `SHKIT_DIFF_MAX_FILES`.
 - **Jobs**: stamp the cache before a call that can fail (no retry storm); put
   `_prompt_timeout SECS` on every network call (GNU `timeout`, else `gtimeout`, else
   perl on macOS), use `GIT_TERMINAL_PROMPT=0` and ssh `BatchMode=yes`.

@@ -25,7 +25,7 @@ name wins, even over a built-in.
 
 ```zsh
 # ~/.config/shkit/prompt.d/php.zsh -> {php}
-: ${PROMPT_COLOR_PHP:='38;5;104'} ${PROMPT_ICON_PHP=$''}   # own defaults, overridable
+: ${SHKIT_COLOR_PHP:='38;5;104'} ${SHKIT_ICON_PHP=$''}   # own defaults, overridable
 
 function _prompt_seg_php {
   [[ -f composer.json ]] || return 0              # nothing appended = block hidden
@@ -44,7 +44,7 @@ shkit set format '{dir} · {git} · {php}'
 ## The contract
 
 1. **Append to `segs`, or append nothing.** Each element of `segs` is one part of
-   the block, joined with `PROMPT_SEPARATOR`. Nothing appended hides the block,
+   the block, joined with `SHKIT_SEPARATOR`. Nothing appended hides the block,
    and the separators around it too.
 2. **Escape every dynamic text** with `_prompt_esc TEXT`, which sets `REPLY`.
    Branch names, file contents and API answers may contain `%` or `$(…)`. Never
@@ -72,9 +72,9 @@ from the settings:
 
 | In the block | Comes from |
 |--------------|-----------|
-| `$_c_<role>` | `PROMPT_COLOR_<ROLE>`, for example `$_c_accent`, `$_c_mute` or your own `$_c_php` |
+| `$_c_<role>` | `SHKIT_COLOR_<ROLE>`, for example `$_c_accent`, `$_c_mute` or your own `$_c_php` |
 | `$_c_reset` | ends a color |
-| `$_i_<name>` | `PROMPT_ICON_<NAME>`, for example `$_i_branch` or your own `$_i_php` |
+| `$_i_<name>` | `SHKIT_ICON_<NAME>`, for example `$_i_branch` or your own `$_i_php` |
 
 Declare your own role and icon at the top of the file with `:=` (color) or `=`
 (icon, so that `''` stays empty). Users and themes can then change them like any
@@ -85,7 +85,7 @@ other: `shkit set color_php '38;5;99'`.
 For anything slow, read a cache on every prompt and let a detached job refresh it:
 
 ```zsh
-: ${PROMPT_WEATHER_TTL:=900}
+: ${SHKIT_WEATHER_TTL:=900}
 
 function _prompt_job_weather { # FILE — detached, stdout/stderr discarded
   local data
@@ -97,7 +97,7 @@ function _prompt_seg_weather {
   local file
   _prompt_key weather; file=$REPLY                 # cache path for this key
   _prompt_read $file                               # sets _ts (epoch) and _data
-  (( SPAWN && EPOCHSECONDS - _ts >= PROMPT_WEATHER_TTL )) &&
+  (( SPAWN && EPOCHSECONDS - _ts >= SHKIT_WEATHER_TTL )) &&
     _prompt_spawn $file _prompt_job_weather $file  # at most one job per file
   [[ -d $file.lock ]] && pending+=$file            # redraw when it lands, ↻ meanwhile
   [[ -n $_data ]] || return 0

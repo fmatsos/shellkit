@@ -12,7 +12,7 @@
     "name": {
       "type": "string",
       "pattern": "^[a-z0-9][a-z0-9-]*$",
-      "description": "Install directory (plugins/<name>) and theme prefix (PROMPT_THEME=<name>/<theme>). Never changes: an update that renames the plugin is refused."
+      "description": "Install directory (plugins/<name>) and theme prefix (SHKIT_THEME=<name>/<theme>). Never changes: an update that renames the plugin is refused."
     },
     "version": {
       "type": "string",
@@ -56,7 +56,7 @@
     "themes": {
       "type": "array",
       "minItems": 1,
-      "description": "One file each, themes/<name>.zsh: PROMPT_* assignments only.",
+      "description": "One file each, themes/<name>.zsh: SHKIT_* assignments only.",
       "items": {
         "type": "object",
         "required": ["name", "description"],

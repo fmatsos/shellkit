@@ -1,12 +1,12 @@
 # Writing a theme
 
-A theme is a set of `PROMPT_*` assignments: layout, colors, icons. It can live in
+A theme is a set of `SHKIT_*` assignments: layout, colors, icons. It can live in
 two places:
 
 | Where | For | Applied |
 |-------|-----|---------|
 | `~/.config/shkit/theme.zsh` | your own look, on this machine | always (layer 4) |
-| `themes/<name>.zsh` in a [plugin](plugins.md) | a look to share | when `PROMPT_THEME=<plugin>/<name>` (layer 2) |
+| `themes/<name>.zsh` in a [plugin](plugins.md) | a look to share | when `SHKIT_THEME=<plugin>/<name>` (layer 2) |
 
 See [settings layers](configuration.md#settings-layers) for how they stack.
 
@@ -27,11 +27,11 @@ This writes `~/.config/shkit/theme.zsh`, which you can also edit directly
 
 ```zsh
 # ~/.config/shkit/theme.zsh
-PROMPT_FORMAT='{dir} · {git} · {mr}'
-PROMPT_RIGHT_FORMAT='{quota}'
-PROMPT_COLOR_PRIMARY='1;34'
-PROMPT_COLOR_ACCENT='38;5;110'
-PROMPT_ICON_DIR=''
+SHKIT_FORMAT='{dir} · {git} · {mr}'
+SHKIT_RIGHT_FORMAT='{quota}'
+SHKIT_COLOR_PRIMARY='1;34'
+SHKIT_COLOR_ACCENT='38;5;110'
+SHKIT_ICON_DIR=''
 ```
 
 ## A theme file
@@ -40,39 +40,39 @@ A theme file follows the same rules, whether it is `theme.zsh` or a plugin's `th
 
 - **Only `NAME=value` lines** and comments: no commands, no `$(…)`, no conditions.
   The file is sourced at every settings change, inside a function.
-- **Only `PROMPT_*` names.** `shkit list` shows every one in effect.
-- **Arrays** use parentheses: `PROMPT_SPINNER=(◐ ◓ ◑ ◒)`.
-- **Quote values**: `PROMPT_COLOR_MUTE='38;5;244'`.
+- **Only `SHKIT_*` names.** `shkit list` shows every one in effect.
+- **Arrays** use parentheses: `SHKIT_SPINNER=(◐ ◓ ◑ ◒)`.
+- **Quote values**: `SHKIT_COLOR_MUTE='38;5;244'`.
 - **Leave out what you don't change.** Anything unset keeps its default, or the
   value from the layer below.
 
 ```zsh
 # themes/nord.zsh — cool blues, one warm accent for warnings.
-PROMPT_FORMAT='{dir} {git} {mr}'
-PROMPT_SEPARATOR=' '
-PROMPT_COLOR_PRIMARY='1;38;2;136;192;208'
-PROMPT_COLOR_ACCENT='38;2;129;161;193'
-PROMPT_COLOR_MUTE='38;2;76;86;106'
-PROMPT_COLOR_WARN='38;2;235;203;139'
-PROMPT_COLOR_OK='38;2;163;190;140'
-PROMPT_COLOR_FAIL='38;2;191;97;106'
-PROMPT_ICON_PROMPT='❯'
+SHKIT_FORMAT='{dir} {git} {mr}'
+SHKIT_SEPARATOR=' '
+SHKIT_COLOR_PRIMARY='1;38;2;136;192;208'
+SHKIT_COLOR_ACCENT='38;2;129;161;193'
+SHKIT_COLOR_MUTE='38;2;76;86;106'
+SHKIT_COLOR_WARN='38;2;235;203;139'
+SHKIT_COLOR_OK='38;2;163;190;140'
+SHKIT_COLOR_FAIL='38;2;191;97;106'
+SHKIT_ICON_PROMPT='❯'
 ```
 
 The variables you can set:
 
 | Group | Names | Reference |
 |-------|-------|-----------|
-| layout | `PROMPT_FORMAT`, `PROMPT_RIGHT_FORMAT`, `PROMPT_SEPARATOR` | [Format](prompt.md#format) |
-| colors | `PROMPT_COLOR_<ROLE>`, `PROMPT_QUOTA_PALETTE` | [Colors](prompt.md#colors) |
-| icons | `PROMPT_ICON_<NAME>`, `PROMPT_SPINNER` | [Icons](prompt.md#icons) |
+| layout | `SHKIT_FORMAT`, `SHKIT_RIGHT_FORMAT`, `SHKIT_SEPARATOR` | [Format](prompt.md#format) |
+| colors | `SHKIT_COLOR_<ROLE>`, `SHKIT_QUOTA_PALETTE` | [Colors](prompt.md#colors) |
+| icons | `SHKIT_ICON_<NAME>`, `SHKIT_SPINNER` | [Icons](prompt.md#icons) |
 
-Behaviour toggles (`PROMPT_SHOW_MR`, TTLs…) belong to the user, not to a theme.
+Behaviour toggles (`SHKIT_SHOW_MR`, TTLs…) belong to the user, not to a theme.
 
 ## Tips
 
 - **Colors are roles**: change `ACCENT` and every block using it follows. A block
-  from a plugin may add its own role (`PROMPT_COLOR_PHP`), which a theme can set
+  from a plugin may add its own role (`SHKIT_COLOR_PHP`), which a theme can set
   too.
 - **Stay readable on both light and dark terminals**, or say which one the
   theme is for in its description.

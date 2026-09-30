@@ -48,6 +48,8 @@ exec zsh
 4. imports `~/.bash_history` into `~/.zsh_history` once, only if the zsh history
    doesn't exist yet.
 
+Then `shkit doctor` checks the result: versions, locale, font, tools and files.
+
 `bash/install.sh` symlinks `~/.bashrc` (an existing file is kept as
 `~/.bashrc.pre-config`), generates the same completions for bash and, on macOS,
 creates a `~/.bash_profile` that sources it.

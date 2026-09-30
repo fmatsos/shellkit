@@ -39,13 +39,13 @@ Load order in `zshrc`:
 
 ## Settings layers
 
-The prompt's `PROMPT_*` variables are built from five layers. Each one overrides
+The prompt's `SHKIT_*` variables are built from five layers. Each one overrides
 the layers before it:
 
 | # | Layer | Written by |
 |---|-------|-----------|
 | 1 | defaults: `zsh/prompt.zsh`, then the blocks' own defaults | the repository, plugins, `prompt.d/` |
-| 2 | a plugin theme, when `PROMPT_THEME=<plugin>/<theme>` is set | `shkit set theme` |
+| 2 | a plugin theme, when `SHKIT_THEME=<plugin>/<theme>` is set | `shkit set theme` |
 | 3 | `settings.sh` and the environment, as they were when the shell started | you |
 | 4 | `theme.zsh` | `shkit set` |
 | 5 | the file of the project you are in | `shkit set -p` |
@@ -54,11 +54,19 @@ So a plugin theme restyles everything you haven't set yourself. `theme.zsh` alwa
 beats it, and a project file beats both.
 
 `shkit show` prints what each file sets. `shkit list` prints the result, every
-`PROMPT_*` in effect here.
+`SHKIT_*` in effect here.
+
+> [!NOTE]
+> Before 1.1 these settings were named `PROMPT_*`. The old names still work, in every
+> layer: `PROMPT_FORMAT` in `theme.zsh` is read as `SHKIT_FORMAT`. `shkit set` renames
+> them in the file it edits, and `shell/install-local.sh` renames them everywhere (it
+> keeps a `.bak` of each file, and leaves bash's and zsh's own `PROMPT_COMMAND`,
+> `PROMPT_DIRTRIM` and `PROMPT_EOL_MARK` alone). A block written for 1.0 that reads
+> `$PROMPT_…` as it renders still gets the value; new blocks read `$SHKIT_…`.
 
 > [!TIP]
 > Put prompt *behaviour* toggles that you may also want in scripts
-> (`PROMPT_SHOW_MR=false`…) in `settings.sh`. Put the *look* in `theme.zsh`.
+> (`SHKIT_SHOW_MR=false`…) in `settings.sh`. Put the *look* in `theme.zsh`.
 
 Layers 2, 4 and 5 are read again whenever `shkit` changes something and when you
 enter or leave a project. Layer 3 is read once, when the shell starts: after
@@ -83,8 +91,8 @@ A project file is plain assignments, plus the directory it applies to:
 
 ```zsh
 # Prompt settings for ~/code/acme-shop and below, over theme.zsh.
-PROMPT_PROJECT_DIR=~/code/acme-shop
-PROMPT_FORMAT='{dir} · {git} · {mr}'
+SHKIT_PROJECT_DIR=~/code/acme-shop
+SHKIT_FORMAT='{dir} · {git} · {mr}'
 ```
 
 When projects are nested, the deepest one wins. Symlinked paths are resolved, so
@@ -113,10 +121,10 @@ export SLACKCLI_XOXC_TOKEN=<token>
 ```bash
 export PATH="$HOME/tools/bin:$PATH"
 export ENABLE_LSP_TOOL=1
-export PROMPT_SHOW_MR=false        # prompt behaviour, see prompt.md
+export SHKIT_SHOW_MR=false        # prompt behaviour, see prompt.md
 ```
 
-It is read before the prompt, so it can set any `PROMPT_*` behaviour toggle
+It is read before the prompt, so it can set any `SHKIT_*` behaviour toggle
 ([list](prompt.md#behaviour)) and the auto-update settings:
 
 | Setting | Default | Effect |

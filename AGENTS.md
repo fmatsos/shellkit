@@ -63,7 +63,7 @@ Tested on one OS only: say so, and list what to check on the other.
 | `zsh/zshrc`, `zsh/zshenv` | default shell, symlinked by `zsh/install.sh` |
 | `zsh/prompt.zsh` | the prompt (async redraw); self-check: `zsh zsh/prompt.check.zsh` |
 | `zsh/plugin/` | prompt plugins: `schema.json` (the `plugin.json` a plugin repository must follow), `validate.jq`, `example/` |
-| `zsh/shkit.zsh` | `shkit`: edits the theme / project settings files for the user, manages plugins, updates shellkit (also in the background at startup) |
+| `zsh/shkit.zsh` | `shkit`: edits the theme / project settings files for the user, manages plugins, updates shellkit (also in the background at startup), checks the setup (`doctor`) |
 | `shell/install-local.sh` | creates `~/.config/shkit/` (the files outside the repo), migrates the old `~/.config/shell/` and `~/.*.local` |
 | `shell/aliases.sh` | aliases and functions shared by bash and zsh — keep it portable |
 | `bash/` | fallback bash config (`bashrc` with a minimal prompt, `completion.sh`) |
@@ -81,8 +81,8 @@ Tested on one OS only: say so, and list what to check on the other.
 - Prompt features live in `zsh/prompt.zsh` only; the bash prompt stays minimal
   on purpose. Run `zsh zsh/prompt.check.zsh` after changing it.
 - A new prompt segment = a `_prompt_seg_<name>` function appending to `segs`,
-  plus its `{name}` in the `PROMPT_FORMAT` (or `PROMPT_RIGHT_FORMAT`) default. Colors are roles
-  (`PROMPT_COLOR_*`) and icons are `PROMPT_ICON_*` (used as `$_i_<name>`),
+  plus its `{name}` in the `SHKIT_FORMAT` (or `SHKIT_RIGHT_FORMAT`) default. Colors are roles
+  (`SHKIT_COLOR_*`) and icons are `SHKIT_ICON_*` (used as `$_i_<name>`),
   never literals in the segment. A block for this machine only goes in
   `~/.config/shkit/prompt.d/<name>.zsh` instead (loaded after the built-ins, same contract).
 - Plugins (`~/.config/shkit/plugins/`, `shkit plugin`) are remote code in every

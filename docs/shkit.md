@@ -13,6 +13,7 @@ shkit edit  [-p]
 shkit plugin add [-y] URL | update [-y] [NAME] | remove NAME | list
 shkit plugin new NAME [DIR] | new-block NAME [DESC] | new-theme NAME [DESC] | check [DIR]
 shkit update [-y]
+shkit doctor
 ```
 
 Everything completes on <kbd>Tab</kbd>: subcommands, setting names, theme names
@@ -22,8 +23,8 @@ and installed plugins.
 
 ### `shkit set [-p] NAME VALUE…`
 
-Sets `PROMPT_<NAME>`. `NAME` is case-insensitive, and `-` or `.` count as `_`:
-`color-accent`, `color_accent` and `PROMPT_COLOR_ACCENT` are the same.
+Sets `SHKIT_<NAME>`. `NAME` is case-insensitive, and `-` or `.` count as `_`:
+`color-accent`, `color_accent` and `SHKIT_COLOR_ACCENT` are the same.
 
 ```zsh
 shkit set format '{dir} · {git}'
@@ -43,12 +44,12 @@ Removes the line, so the layer below applies again.
 
 ### `shkit show`
 
-The active project, the `PROMPT_*` lines of `theme.zsh` and of the project file,
+The active project, the `SHKIT_*` lines of `theme.zsh` and of the project file,
 the available blocks and the installed themes.
 
 ### `shkit list`
 
-Every `PROMPT_*` in effect here, after all [layers](configuration.md#settings-layers).
+Every `SHKIT_*` in effect here, after all [layers](configuration.md#settings-layers).
 This is the full list of names `set` accepts.
 
 ### `shkit project [DIR]`
@@ -91,6 +92,25 @@ Run `exec zsh` afterwards.
 The same update runs in the background at startup, once a day, only on the
 default branch and without local changes. See
 [Updating](installation.md#updating) for `SHKIT_AUTO_UPDATE` and `SHKIT_UPDATE_TTL`.
+
+## Checking the setup
+
+### `shkit doctor`
+
+Checks what shellkit relies on, one line each: `ok`, `warn` (works, with less),
+`FAIL` (broken), or `--` (not in use).
+
+- zsh 5.8+, git 2.31+, a UTF-8 locale, an installed Nerd Font, bash 5.1+ for the fallback;
+- `jq`, and `glab` / `gh` with their login;
+- the docker daemon, and what sends [notifications](prompt.md#notifications);
+- `~/.config/shkit` (`700`) and `secrets.sh` (`600`), an old `~/.config/shell` not
+  migrated, `~/.zshrc` linked to shellkit, the prompt's cache writable;
+- shellkit's version and branch, local changes that stop the auto-update, a newer
+  release already fetched, the last update check;
+- the theme set, and each plugin against the schema.
+
+It only asks the network for the `glab` / `gh` login. It reports their status,
+never their output. It exits with `1` when a line says `FAIL`.
 
 ## Exit status
 
