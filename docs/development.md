@@ -125,3 +125,5 @@ job at startup at most once a day (see [Updating](installation.md#updating)).
 | `shell-config` | options, aliases, completion, install scripts, where a setting belongs |
 | `prompt-theme` | the prompt engine: blocks, jobs, colors, layers, `shkit` |
 | `prompt-plugin` | writing a plugin |
+| `website` | the site on `gh-pages`: pages, build, accessibility and performance checks, publishing |
+| `visuals` | the mascot, illustrations, sprite sheets and screenshots, generated with Codex (`sprite-check.py`) |
