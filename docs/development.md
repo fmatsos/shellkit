@@ -77,6 +77,18 @@ request, on Ubuntu and macOS:
 
 A feature the self-check can't cover gets a line in the smoke tests.
 
+## Website
+
+The site, <https://fmatsos.github.io/shellkit/>, lives on the `gh-pages` branch: the
+landing page, the templates and `build.py`. Its documentation pages are these `docs/`,
+rebuilt by `.github/workflows/pages.yml` at every push to `main` that touches them
+(or by hand: *Actions → pages → Run workflow*). `build.py` renders them with GitHub's
+Markdown API and fails on a broken link between pages or to an anchor, so a doc that
+only works on github.com shows up there.
+
+To change the site itself, check out `gh-pages`, edit `src/` and run
+`python3 build.py <path to main's docs/>` before committing: see its `README.md`.
+
 ## Releasing
 
 A release is a tag `vX.Y.Z`:

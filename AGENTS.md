@@ -69,7 +69,7 @@ Tested on one OS only: say so, and list what to check on the other.
 | `bash/` | fallback bash config (`bashrc` with a minimal prompt, `completion.sh`) |
 | `bin/` | scripts, installed in `~/.bin` |
 | `docs/` | user documentation (GFM), linked from `README.md` |
-| `.github/` | `workflows/check.yml` (CI), `workflows/release.yml` (tag `vX.Y.Z` = release), `smoke.*` |
+| `.github/` | `workflows/check.yml` (CI), `workflows/release.yml` (tag `vX.Y.Z` = release), `workflows/pages.yml` (`docs/` → the website on `gh-pages`), `smoke.*` |
 | `.claude/skills/` | agent skills: `config-commit` (checks + commit, `check.sh`), `prompt-theme`, `prompt-plugin` (writing a plugin), `shell-config` |
 
 ## Conventions

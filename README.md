@@ -70,6 +70,8 @@ Nerd Font is enough as a fallback font.
 
 ## Documentation
 
+Also on the website: <https://fmatsos.github.io/shellkit/docs/>.
+
 | Guide | What's in it |
 |-------|--------------|
 | [Installation](docs/installation.md) | requirements, Linux and macOS, bash fallback, automatic updates, migrating |
