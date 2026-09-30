@@ -1,0 +1,41 @@
+# Linux and macOS (AGENTS.md, Rule #2), at every push:
+# 1. check.sh: syntax, prompt self-check, zsh startup, secret scan (token shapes
+#    only: no secrets.sh on a runner);
+# 2. the install scripts, run by macOS's own bash 3.2 there;
+# 3. the installed shells, as a user gets them (.github/smoke.*).
+name: check
+on:
+  push:
+    branches: ['**']   # a tag runs it through release.yml instead
+  pull_request:
+  workflow_call:
+env:
+  SHKIT_AUTO_UPDATE: false   # the installed shells must not update the checkout under test
+jobs:
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Dependencies
+        run: |
+          if [[ $RUNNER_OS == Linux ]]; then sudo apt-get install -y --no-install-recommends zsh
+          else brew list bash >/dev/null 2>&1 || brew install bash   # bashrc needs 5.1+
+          fi
+          # a runner's fpath has group-writable dirs: compinit would ask (no terminal here)
+          zsh -fc 'autoload -Uz compaudit; compaudit' 2>/dev/null | while read -r d; do sudo chmod go-w "$d"; done
+          zsh --version; bash --version | head -1; jq --version
+      - name: check.sh
+        run: .claude/skills/config-commit/check.sh
+      - name: "Install (macOS: with /bin/bash 3.2)"
+        run: /bin/bash zsh/install.sh && /bin/bash bash/install.sh
+      - name: zsh, installed
+        run: zsh -i .github/smoke.zsh </dev/null
+      - name: bash, installed
+        run: bash -i .github/smoke.bash </dev/null
+      - name: bash 3.2 (macOS's /bin/bash) stops bashrc cleanly
+        if: runner.os == 'macOS'
+        run: /bin/bash -ic 'echo loaded' </dev/null 2>&1 | tee /dev/stderr | grep -q 'too old'

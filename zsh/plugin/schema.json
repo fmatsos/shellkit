@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/fmatsos/shellkit/zsh/plugin/schema.json",
+  "title": "zsh prompt plugin",
+  "description": "plugin.json, at the root of a plugin repository. Every block and theme is declared here, and the repository's blocks/*.zsh and themes/*.zsh are exactly the declared ones: shkit refuses any other layout. shkit reads this schema itself (keywords: type, required, anyOf of required, properties, additionalProperties, items, minItems, pattern, minLength; format is not checked).",
+  "type": "object",
+  "required": ["name", "version", "description"],
+  "anyOf": [{ "required": ["blocks"] }, { "required": ["themes"] }],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$",
+      "description": "Install directory (plugins/<name>) and theme prefix (PROMPT_THEME=<name>/<theme>). Never changes: an update that renames the plugin is refused."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(-[0-9A-Za-z.-]+)?$",
+      "description": "Semantic version, e.g. 1.4.0."
+    },
+    "description": { "type": "string", "minLength": 1 },
+    "author": {
+      "type": "object",
+      "required": ["name"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "email": { "type": "string", "format": "email" },
+        "url": { "type": "string", "format": "uri" }
+      }
+    },
+    "license": { "type": "string" },
+    "homepage": { "type": "string", "format": "uri" },
+    "repository": { "type": "string" },
+    "keywords": { "type": "array", "items": { "type": "string" } },
+    "requires": {
+      "type": "array",
+      "description": "Commands the blocks run (glab, docker…): shkit warns about the missing ones.",
+      "items": { "type": "string", "pattern": "^[A-Za-z0-9._+-]+$" }
+    },
+    "blocks": {
+      "type": "array",
+      "minItems": 1,
+      "description": "One file each, blocks/<name>.zsh, defining _prompt_seg_<name> (the {name} of a format).",
+      "items": {
+        "type": "object",
+        "required": ["name", "description"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string", "pattern": "^[a-z0-9_]+$" },
+          "description": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "themes": {
+      "type": "array",
+      "minItems": 1,
+      "description": "One file each, themes/<name>.zsh: PROMPT_* assignments only.",
+      "items": {
+        "type": "object",
+        "required": ["name", "description"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9_-]*$" },
+          "description": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

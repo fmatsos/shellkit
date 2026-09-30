@@ -1,0 +1,10 @@
+{
+  "$schema": "https://github.com/fmatsos/shellkit/zsh/plugin/schema.json",
+  "name": "example",
+  "version": "1.0.0",
+  "description": "A template: one block, one theme. Copy it into a new repository.",
+  "author": { "name": "Your Name" },
+  "license": "MIT",
+  "blocks": [{ "name": "hello", "description": "The user name, in the accent color" }],
+  "themes": [{ "name": "mono", "description": "Grey, one accent" }]
+}

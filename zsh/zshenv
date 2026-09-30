@@ -1,0 +1,5 @@
+# ~/.zshenv — a symlink to <config repo>/zsh/zshenv (see zsh/install.sh).
+# Ubuntu's /etc/zsh/zshrc runs compinit; zshrc runs it too: skip the global one.
+skip_global_compinit=1
+# macOS Terminal.app: no per-tab history (/etc/zshrc_Apple_Terminal), zshrc shares one.
+SHELL_SESSIONS_DISABLE=1

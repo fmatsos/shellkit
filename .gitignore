@@ -1,0 +1,9 @@
+/vendor/
+
+# Never commit secrets or machine-local shell settings (they live in $HOME).
+.secrets.local
+.settings.local
+secrets.sh
+settings.sh
+*.local
+.env*

@@ -1,0 +1,100 @@
+# shellcheck shell=bash
+# ~/.bashrc — a symlink to <config repo>/bash/bashrc (see install.sh).
+#
+# Machine-specific settings go in $SHELL_LOCAL_DIR/settings.sh (~/.config/shkit),
+# secrets in its secrets.sh (chmod 600). Neither lives in this repo.
+
+case $- in *i*) ;; *) return ;; esac
+# macOS's /bin/bash is 3.2 (no autocd, globstar, READLINE_LINE; HISTSIZE=-1 = no history):
+# this config needs Homebrew's bash (brew install bash).
+if (( BASH_VERSINFO[0] * 100 + BASH_VERSINFO[1] < 501 )); then
+  echo "bashrc: bash $BASH_VERSION is too old (5.1+ needed: brew install bash), config not loaded" >&2
+  return
+fi
+
+_bashrc_dir=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
+SHELL_LOCAL_DIR=${XDG_CONFIG_HOME:-$HOME/.config}/shkit
+[[ -d ${SHELL_LOCAL_DIR%/*}/shell && ! -e $SHELL_LOCAL_DIR ]] &&   # renamed with shellkit
+  echo "shellkit: ~/.config/shell not migrated, run shell/install-local.sh" >&2
+
+# --- Options ------------------------------------------------------------------
+shopt -s autocd cdspell dirspell globstar checkwinsize
+set -o noclobber   # `>` never overwrites a file; `>|` does it on purpose
+
+# --- History: one unlimited history, shared by every tab as it goes ----------
+HISTSIZE=-1
+HISTFILESIZE=-1
+HISTCONTROL=erasedups:ignoreboth
+HISTIGNORE='exit:ls:bg:fg:history:clear'
+HISTTIMEFORMAT=$'\e[31m[%d.%m.%Y] \e[36m[%T]\e[0m '
+shopt -s histappend cmdhist histreedit histverify lithist
+# ↑/↓ search the history for what is already typed.
+bind '"\e[A": history-search-backward'
+bind '"\e[B": history-search-forward'
+
+# --- Esc Esc: toggle `sudo ` in front of the line (empty line: last command) --
+function _bashrc_sudo {
+  if [[ ! $READLINE_LINE ]]; then
+    READLINE_LINE=$(fc -ln -1) READLINE_LINE=${READLINE_LINE#"${READLINE_LINE%%[![:space:]]*}"}
+    READLINE_POINT=${#READLINE_LINE}
+    [[ $READLINE_LINE == 'sudo '* ]] && return
+  fi
+  if [[ $READLINE_LINE == 'sudo '* ]]; then
+    READLINE_LINE=${READLINE_LINE#sudo } READLINE_POINT=$((READLINE_POINT < 5 ? 0 : READLINE_POINT - 5))
+  else
+    READLINE_LINE="sudo $READLINE_LINE" READLINE_POINT=$((READLINE_POINT + 5))
+  fi
+}
+bind -x '"\e\e": _bashrc_sudo'
+
+# --- Colored man pages --------------------------------------------------------
+function man {
+  LESS_TERMCAP_mb=$'\e[31m' LESS_TERMCAP_md=$'\e[1;31m' LESS_TERMCAP_me=$'\e[0m' \
+  LESS_TERMCAP_so=$'\e[1;33m' LESS_TERMCAP_se=$'\e[0m' \
+  LESS_TERMCAP_us=$'\e[32m' LESS_TERMCAP_ue=$'\e[0m' \
+  GROFF_NO_SGR=1 command man "$@"
+}
+
+# --- Environment --------------------------------------------------------------
+[[ -x /opt/homebrew/bin/brew && :$PATH: != *:/opt/homebrew/bin:* ]] &&
+  PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"   # Homebrew on Apple silicon
+[[ :$PATH: == *":$HOME/.local/bin:"* ]] || PATH="$HOME/.local/bin:$PATH"
+[[ -r ~/.cargo/env ]] && . ~/.cargo/env
+
+# --- Completion ---------------------------------------------------------------
+# bash-completion lazy-loads per command, including what install.sh generates
+# into ~/.local/share/bash-completion/completions (codex, composer, npm…).
+# First found: Linux, Homebrew (Apple silicon, Intel).
+for _f in /usr/share/bash-completion/bash_completion \
+  {/opt/homebrew,/usr/local}/etc/profile.d/bash_completion.sh; do
+  [[ -r $_f ]] && ! shopt -oq posix && { . "$_f"; break; }
+done
+command -v aws_completer >/dev/null && complete -C aws_completer aws
+
+# --- This machine only (never committed) -------------------------------------
+[[ -r $SHELL_LOCAL_DIR/settings.sh ]] && . "$SHELL_LOCAL_DIR/settings.sh"
+
+# --- Aliases, prompt ----------------------------------------------------------
+. "$_bashrc_dir/../shell/aliases.sh"
+[[ -r $SHELL_LOCAL_DIR/aliases.sh ]] && . "$SHELL_LOCAL_DIR/aliases.sh"   # this machine's own
+. "$_bashrc_dir/completion.sh"
+
+# ponytail: minimal fallback prompt (dir, git branch, $ red on error); the full
+# one is zsh/prompt.zsh. In PROMPT_COMMAND mode __git_ps1 never evaluates the branch name.
+# git-sh-prompt: Debian, Fedora, Homebrew's git, Apple's (Command Line Tools).
+for _f in /usr/lib/git-core/git-sh-prompt /usr/share/git-core/contrib/completion/git-prompt.sh \
+  {/opt/homebrew,/usr/local}/etc/bash_completion.d/git-prompt.sh \
+  /Library/Developer/CommandLineTools/usr/share/git-core/git-prompt.sh; do
+  [[ -r $_f ]] && { . "$_f"; break; }
+done
+declare -F __git_ps1 >/dev/null || function __git_ps1 { PS1=$1$2; }   # no git prompt found: no branch
+GIT_PS1_SHOWDIRTYSTATE=1 GIT_PS1_SHOWUPSTREAM=auto
+function _bashrc_prompt {
+  local s=$? c='\[\e[1m\]'
+  (( s )) && c='\[\e[1;31m\]'
+  __git_ps1 '\[\e[1;34m\]$PWD\[\e[0m\]' "\n$c\\\$\[\e[0m\] " ' \[\e[35m\] %s\[\e[0m\]'
+}
+PROMPT_COMMAND=(_bashrc_prompt 'history -a')   # prompt first: it needs the command's $?
+
+[[ -r $SHELL_LOCAL_DIR/secrets.sh ]] && . "$SHELL_LOCAL_DIR/secrets.sh"   # never committed, chmod 600
+unset -v _bashrc_dir _f
