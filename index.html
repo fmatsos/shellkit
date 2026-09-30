@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-motion="off">
+<html lang="en" class="landing" data-motion="off">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -29,9 +29,10 @@
 /* shellkit site: one stylesheet for the landing page and the docs, inlined by build.py.
    ./ is replaced by the page's path to the site root. Every animation runs only
    under html[data-motion="on"] (set by the head script, toggled by #motion). */
-@font-face { font-family: "Shrikhand"; src: url(./assets/fonts/shrikhand.woff2) format("woff2"); font-display: swap; }
-@font-face { font-family: "Space Grotesk"; src: url(./assets/fonts/space-grotesk.woff2) format("woff2"); font-weight: 300 700; font-display: swap; }
-@font-face { font-family: "JetBrains Mono"; src: url(./assets/fonts/jetbrains-mono.woff2) format("woff2"); font-display: optional; } /* never swapped in late: code reflows the page */
+/* optional, not swap: a font that arrives late is skipped for this view instead of reflowing the page (CLS) */
+@font-face { font-family: "Shrikhand"; src: url(./assets/fonts/shrikhand.woff2) format("woff2"); font-display: optional; }
+@font-face { font-family: "Space Grotesk"; src: url(./assets/fonts/space-grotesk.woff2) format("woff2"); font-weight: 300 700; font-display: optional; }
+@font-face { font-family: "JetBrains Mono"; src: url(./assets/fonts/jetbrains-mono.woff2) format("woff2"); font-display: optional; }
 
 :root {
   --orange: #ff6b1a; --magenta: #ff2e88; --teal: #14c4bd; --yellow: #ffd23f;
@@ -115,57 +116,131 @@ h3 { font-size: 1.35rem; }
 .kicker { margin: 0 0 8px; font-weight: 700; }
 .kicker a { color: var(--teal); }
 
-/* ---------- landing sections ---------- */
-section.pad { padding: 72px 0; }
+/* ---------- landing: one full-viewport section per screen ---------- */
+/* --hh: the sticky header's height, measured by site.js (it wraps on small screens) */
+html.landing { scroll-padding-top: var(--hh, 64px); scroll-snap-type: y proximity; }
+html.landing.snap { scroll-snap-type: y mandatory; }   /* only when every section fits the viewport */
+html.landing.dragging { scroll-snap-type: none; scroll-behavior: auto; }
+.sec { position: relative; min-height: calc(100svh - var(--hh, 64px)); display: flex; align-items: center; padding: 56px 0; scroll-snap-align: start; overflow: hidden; }
+.sec > .wrap { position: relative; }
+.landing .foot { scroll-snap-align: end; }
+.hero.sec { padding: 32px 0 112px; }
+.hero .wrap { padding: 0; }
 .lead { font-size: 1.2rem; max-width: 60ch; }
 .center { text-align: center; }
 .center .lead { margin-inline: auto; }
-.terminal { margin-top: 36px; border: 5px solid var(--ink); border-radius: 16px; box-shadow: 10px 10px 0 var(--magenta); overflow: hidden; background: #1e2127; }
-.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 44px; }
-.stats li { background: var(--teal); border: 4px solid var(--ink); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px; text-align: center; }
-.stats li:nth-child(2) { background: var(--yellow); transform: rotate(-2deg); }
+
+.term-wrap { position: relative; margin: 36px auto 0; max-width: 1000px; text-align: left; }
+.term { border: 5px solid var(--ink); border-radius: 16px; box-shadow: 10px 10px 0 var(--magenta); overflow: hidden; background: #1e2127; color: #abb2bf; }
+.term-bar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: #282c34; font: .85rem "JetBrains Mono", monospace; }
+.term-bar i { width: 13px; height: 13px; border-radius: 50%; background: #ff5f57; }
+.term-bar i:nth-child(2) { background: #febc2e; }
+.term-bar i:nth-child(3) { background: #28c840; }
+.term-bar span { flex: 1; text-align: center; margin-right: 60px; }
+.term-body { padding: 18px 22px; font: clamp(.78rem, 1.6vw, 1.05rem)/1.8 "JetBrains Mono", monospace; }
+.term-body p { margin: 0; display: flex; flex-wrap: wrap; white-space: pre-wrap; }
+.t-dir, .t-add { color: #98c379; }
+.t-git { color: #56b6c2; }
+.t-dirty, .t-agent { color: #e5a045; }
+.t-del { color: #e06c75; }
+.t-q { color: #b39cf5; }
+.t-warn { color: #e5c07b; }
+.t-mr { position: relative; color: #b39cf5; }
+.t-spin { position: absolute; left: 0; display: none; }
+.t-right { margin-left: auto; padding-left: 24px; }
+.t-cmd { color: #e6e6e6; }
+.t-cur { display: inline-block; width: .6em; height: 1.2em; margin-left: 2px; vertical-align: -.2em; background: #9aa0aa; }
+
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 40px; }
+.stats li { background: var(--teal); border: 4px solid var(--ink); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; text-align: center; }
+.stats li:nth-child(2) { background: var(--yellow); rotate: -2deg; }
 .stats li:nth-child(3) { background: var(--orange); }
-.stats b { display: block; font-family: "Shrikhand", cursive; font-weight: 400; font-size: 2.5rem; line-height: 1.2; }
-@media (max-width: 640px) { .stats { grid-template-columns: 1fr; } .stats li:nth-child(2) { transform: none; } }
+.stats b { display: block; font-family: "Shrikhand", cursive; font-weight: 400; font-size: clamp(1.8rem, 4vw, 2.5rem); line-height: 1.2; }
+@media (max-width: 640px) { .stats { grid-template-columns: 1fr; gap: 12px; } .stats li { padding: 8px; } .stats li:nth-child(2) { rotate: none; } }
 
 .features { background: var(--navy); color: var(--cream); }
 .features h2 { color: var(--yellow); }
-.grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; margin-top: 40px; }
+.cards { position: relative; margin-top: 110px; }
+.grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
 .card { background: var(--cream); color: var(--ink); border: 4px solid var(--ink); border-radius: var(--radius); box-shadow: 8px 8px 0 var(--c, var(--teal)); overflow: hidden; }
 .card img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-bottom: 4px solid var(--ink); }
-.card div { padding: 20px 24px 26px; }
-.card p { margin: 0; }
+.card div { padding: 14px 18px 18px; }
+.card h3 { font-size: 1.2rem; margin-bottom: .3em; }
+.card p { margin: 0; font-size: 1rem; }
 .card:nth-child(2) { --c: var(--magenta); }
 .card:nth-child(3) { --c: var(--yellow); }
 .card:nth-child(4) { --c: var(--orange); }
-@media (max-width: 760px) { .grid { grid-template-columns: 1fr; } }
-.more { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 18px; margin-top: 44px; }
-.more li { border: 3px dashed var(--teal); border-radius: 16px; padding: 16px 18px; }
+.walker.on-cards { bottom: auto; top: -92px; }
+@media (max-width: 1000px) { .grid { grid-template-columns: repeat(2, 1fr); } .walker.on-cards { display: none !important; } .cards { margin-top: 28px; } }
+@media (max-width: 640px) {  /* a sideways carousel: the four cards don't fit one screen */
+  .grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 16px; padding: 4px 4px 16px; }
+  .card { flex: 0 0 min(82%, 340px); scroll-snap-align: center; }
+}
+
+.more-sec { background: var(--navy); color: var(--cream); border-top: 6px dashed var(--teal); }
+.more-sec h2 { color: var(--yellow); }
+.more { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 36px; }
+.more li { position: relative; border: 3px dashed var(--teal); border-radius: 16px; padding: 16px 18px 16px 52px; }
+.more li::before { content: "✓"; position: absolute; left: 14px; top: 14px; width: 26px; height: 26px; border-radius: 50%; background: var(--teal); color: var(--ink); font-weight: 700; display: grid; place-items: center; }
 .more b { color: var(--yellow); }
+@media (max-width: 1000px) { .more { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px) { .more { grid-template-columns: 1fr; gap: 10px; } .more li { padding: 10px 12px 10px 46px; font-size: 1rem; } .more li::before { top: 10px; } }
 
 .start { background: var(--yellow); }
-.steps { display: grid; gap: 28px; margin-top: 32px; counter-reset: step; }
-.steps > li { display: grid; grid-template-columns: 64px 1fr; gap: 18px; align-items: start; counter-increment: step; }
+.steps { display: grid; grid-template-columns: 1fr 1.45fr; gap: 20px 32px; margin-top: 24px; counter-reset: step; }
+.steps > li { display: grid; grid-template-columns: 52px 1fr; gap: 14px; align-items: start; counter-increment: step; }
+.steps > li:nth-child(2) { grid-column: 2; grid-row: 1 / span 2; }
 .steps > li::before {
-  content: counter(step); width: 64px; height: 64px; border-radius: 50%; background: var(--magenta); color: var(--ink);
-  border: 4px solid var(--ink); display: grid; place-items: center; font-family: "Shrikhand", cursive; font-size: 1.8rem; box-shadow: 4px 4px 0 var(--ink);
+  content: counter(step); width: 52px; height: 52px; border-radius: 50%; background: var(--magenta); color: var(--ink);
+  border: 4px solid var(--ink); display: grid; place-items: center; font-family: "Shrikhand", cursive; font-size: 1.5rem; box-shadow: 4px 4px 0 var(--ink);
 }
-.steps h3 { margin: 4px 0 4px; }
-.steps p { margin: 0; }
+.steps h3 { margin: 4px 0 2px; }
+.steps p { margin: 0; font-size: 1rem; }
+.start pre { font-size: .84rem; line-height: 1.6; padding: 14px 16px; }
+.needs { margin: 24px 0 0; font-size: 1rem; }
+@media (max-width: 900px) { .steps { grid-template-columns: 1fr; } .steps > li:nth-child(2) { grid-column: auto; grid-row: auto; } }
+@media (max-width: 560px) { .steps > li { grid-template-columns: 1fr; gap: 6px; } .steps > li::before { width: 44px; height: 44px; font-size: 1.2rem; } }
 .code { position: relative; }
-.code pre { padding-right: 104px; }
+.code pre { padding-top: 46px; }  /* the copy button sits above the text, which keeps the full width */
 .copy {
-  position: absolute; top: 14px; right: 12px; font: 700 .85rem "Space Grotesk", sans-serif; cursor: pointer;
+  position: absolute; top: 12px; right: 10px; font: 700 .85rem "Space Grotesk", sans-serif; cursor: pointer;
   background: var(--teal); border: 2px solid var(--cream); color: var(--ink); border-radius: 999px; padding: 4px 14px; min-height: 32px;
 }
-@media (max-width: 560px) { .steps > li { grid-template-columns: 1fr; } .steps > li::before { width: 52px; height: 52px; } }
+
+.sec .docs-grid { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 900px) { .sec .docs-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px) { .sec .docs-grid { gap: 10px; } .sec .docs-grid a { padding: 10px 12px; } .sec .docs-grid span { display: none; } }  /* titles only: each page has its summary */
+
+/* the crab buddies: one per section, decorative, only with animations on */
+.buddy { position: absolute; z-index: 2; width: 128px; height: 128px; overflow: hidden; display: none; pointer-events: none; }
+.buddy img { width: 600%; max-width: none; height: 100%; }
+.b-point { left: -34px; top: -118px; }
+.b-dance { right: 0; top: -40px; }
+.b-type { right: 0; top: -24px; }
+.b-read { right: 0; top: -44px; }
+@media (max-width: 640px) { .buddy { width: 88px; height: 88px; } .b-point { left: -8px; top: -84px; } .b-dance, .b-type, .b-read { top: -30px; } }
+
+/* the scroll rail: section links, and the crab as a draggable thumb */
+.rail { position: fixed; z-index: 15; right: 14px; top: calc(50% + var(--hh, 64px) / 2); translate: 0 -50%; width: 40px; height: min(60vh, 420px); }
+.rail::before { content: ""; position: absolute; left: 50%; top: 12px; bottom: 12px; width: 6px; translate: -50% 0; border-radius: 3px; background: var(--ink); box-shadow: 0 0 0 2px var(--cream); }
+.rail ol { position: relative; height: 100%; display: flex; flex-direction: column; justify-content: space-between; align-items: center; }
+.rail a { position: relative; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; }
+.rail a::before { content: ""; width: 14px; height: 14px; border-radius: 50%; background: var(--cream); border: 3px solid var(--ink); }
+.rail a[aria-current]::before { background: var(--yellow); scale: 1.3; }
+.rail a span { position: absolute; right: 40px; white-space: nowrap; background: var(--ink); color: var(--cream); font-weight: 700; font-size: .9rem; padding: 4px 12px; border-radius: 999px; box-shadow: 3px 3px 0 var(--magenta); opacity: 0; pointer-events: none; }
+.rail a:hover span, .rail a:focus-visible span { opacity: 1; }
+.rail.quiet a span { opacity: 0 !important; }
+.rail-thumb { position: absolute; left: 50%; top: 0; width: 40px; height: 40px; margin-left: -20px; cursor: grab; touch-action: none; }
+.rail-thumb:active { cursor: grabbing; }
+.rail-thumb img { width: 40px; height: 40px; filter: drop-shadow(2px 2px 0 var(--ink)); }
+@media (min-width: 701px) { html.landing { scrollbar-width: none; } html.landing::-webkit-scrollbar { display: none; } }
+@media (max-width: 700px) { .rail { display: none; } }
 
 table { width: 100%; border-collapse: collapse; background: var(--paper); font-size: .95rem; }
 th, td { padding: 10px 14px; text-align: left; border-bottom: 2px solid #eadfcb; vertical-align: top; }
 thead th, th[scope="col"] { background: var(--purple); color: var(--cream); }
 caption { text-align: left; font-weight: 700; padding: 0 0 8px; }
 .table { margin: 24px 0; overflow-x: auto; border: 4px solid var(--ink); border-radius: 16px; box-shadow: var(--shadow); background: var(--paper); }
-.start .table caption { padding: 12px 14px; background: var(--paper); }
 
 .docs-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(230px, 100%), 1fr)); gap: 16px; margin-top: 32px; }
 .docs-grid a {
@@ -230,7 +305,7 @@ kbd { background: var(--paper); border: 2px solid var(--ink); border-bottom-widt
 .foot a { color: var(--yellow); }
 .foot p { margin: 8px 0 0; font-size: .95rem; }
 
-/* ---------- fun (motion on only) ---------- */
+/* ---------- fun: every loop and every "not shown yet" state needs [data-motion="on"] ---------- */
 @keyframes spin { to { transform: rotate(1turn); } }
 @keyframes bob { 50% { translate: 0 -10px; } }
 @keyframes frames { to { transform: translateX(-100%); } }
@@ -238,18 +313,56 @@ kbd { background: var(--paper); border: 2px solid var(--ink); border-bottom-widt
   0% { transform: translateX(-110px); } 49.9% { transform: translateX(calc(100vw + 10px)) scaleX(1); }
   50% { transform: translateX(calc(100vw + 10px)) scaleX(-1); } 100% { transform: translateX(-110px) scaleX(-1); }
 }
+/* the crab walks along the top of the four cards, and each one hops as it passes */
+@keyframes cardwalk {
+  0% { transform: translateX(0); } 49.9% { transform: translateX(calc(var(--cw, 600px) - 96px)) scaleX(1); }
+  50% { transform: translateX(calc(var(--cw, 600px) - 96px)) scaleX(-1); } 100% { transform: translateX(0) scaleX(-1); }
+}
+@keyframes hop0 { 2.5%, 6.5%, 93.5%, 97.5% { translate: 0 0; rotate: 0deg; } 4.5%, 95.5% { translate: 0 -16px; rotate: -2deg; } }
+@keyframes hop1 { 16%, 20%, 80%, 84% { translate: 0 0; rotate: 0deg; } 18%, 82% { translate: 0 -16px; rotate: 2deg; } }
+@keyframes hop2 { 30%, 34%, 66%, 70% { translate: 0 0; rotate: 0deg; } 32%, 68% { translate: 0 -16px; rotate: -2deg; } }
+@keyframes hop3 { 43.5%, 47.5%, 52.5%, 56.5% { translate: 0 0; rotate: 0deg; } 45.5%, 54.5% { translate: 0 -16px; rotate: 2deg; } }
 @keyframes wiggle { 25% { rotate: -2deg; } 75% { rotate: 2deg; } }
 @keyframes boing { 30% { scale: 1.12 .9; } 60% { scale: .95 1.08; } }
 @keyframes pop { to { transform: translate(var(--dx), var(--dy)) rotate(var(--r)); opacity: 0; } }
+@keyframes sway { 0%, 100% { transform: translateY(0) rotate(-5deg); } 25%, 75% { transform: translateY(-10px) rotate(0deg); } 50% { transform: translateY(0) rotate(5deg); } }
+@keyframes seg { from { opacity: 0; transform: translateY(8px); } }
+@keyframes spinner { 0%, 48% { opacity: 0; } 49%, 99% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes type { from { width: 0; } }
+@keyframes blink { 50% { opacity: 0; } }
+@keyframes tick { from { scale: 0; rotate: -120deg; } }
+@keyframes buddyin { from { opacity: 0; transform: translateY(48px) scale(.5); } }
+
 [data-motion="on"] .hero::before, [data-motion="on"] .band::before { animation: spin 90s linear infinite; }
 [data-motion="on"] .art { animation: bob 5s ease-in-out infinite; transition: transform .2s; transform: rotate(2deg) perspective(900px) rotateX(var(--ty, 0deg)) rotateY(var(--tx, 0deg)); }
 [data-motion="on"] .walker { display: block; animation: walk 26s linear infinite; }
+[data-motion="on"] .walker.on-cards { animation: cardwalk 16s linear infinite; }
 [data-motion="on"] .walker img { animation: frames .7s steps(6) infinite; }
-[data-motion="on"] .dancer img { animation: frames .9s steps(6) infinite; }
-[data-motion="on"] .card:hover, [data-motion="on"] .docs-grid a:hover, [data-motion="on"] .pager a:hover { animation: wiggle .4s ease-in-out; }
+@media (min-width: 1001px) {
+  [data-motion="on"] .card:nth-child(1) { animation: hop0 16s ease-in-out infinite; }
+  [data-motion="on"] .card:nth-child(2) { animation: hop1 16s ease-in-out infinite; }
+  [data-motion="on"] .card:nth-child(3) { animation: hop2 16s ease-in-out infinite; }
+  [data-motion="on"] .card:nth-child(4) { animation: hop3 16s ease-in-out infinite; }
+}
+[data-motion="on"] .buddy { display: block; }
+[data-motion="on"] .buddy img { animation: frames 1.3s steps(6) infinite; }
+[data-motion="on"] .dancer { animation: sway 3.2s ease-in-out infinite; }
+[data-motion="on"] .dancer img { animation: frames 1.8s steps(6) infinite; }
+[data-motion="on"] .t-cur { animation: blink 1.1s steps(1) infinite; }
+[data-motion="on"] .docs-grid a:hover, [data-motion="on"] .pager a:hover { animation: wiggle .4s ease-in-out; }
 [data-motion="on"] .btn:hover, [data-motion="on"] .copy:hover, [data-motion="on"] .stats li:hover, [data-motion="on"] .brand:hover img { animation: boing .5s ease-in-out; }
-[data-motion="on"].ready .reveal { transition: opacity .6s, transform .6s cubic-bezier(.3, 1.6, .5, 1); }
-[data-motion="on"].ready .reveal:not(.in) { opacity: 0; transform: translateY(32px) scale(.94); }
+
+/* a section plays its entrance each time it becomes the current one (site.js adds .active); under 5 s */
+[data-motion="on"].ready .enter { transition: opacity .6s, transform .7s cubic-bezier(.3, 1.5, .5, 1); transition-delay: calc(var(--d, 0) * 110ms); }
+[data-motion="on"].ready .sec:not(.active) .enter { opacity: 0; transform: translateY(40px) scale(.95); transition-delay: 0s; }
+[data-motion="on"].ready .sec:not(.active) :is(.buddy, .seg, .ln) { opacity: 0; }
+[data-motion="on"].ready .sec:not(.active) .more li::before { opacity: 0; }
+[data-motion="on"].ready .sec.active .buddy { animation: buddyin .7s cubic-bezier(.3, 1.5, .5, 1) .4s both; }
+[data-motion="on"].ready .sec.active .seg { animation: seg .35s calc(var(--t) * 1s + .5s) both; }
+[data-motion="on"].ready .sec.active .t-spin { display: inline-block; animation: spinner 2.8s linear both, spin .8s linear infinite; }
+[data-motion="on"].ready .sec.active .t-cmd { display: inline-block; width: 8ch; overflow: hidden; white-space: nowrap; vertical-align: bottom; animation: type .8s steps(8) 3.1s both; }
+[data-motion="on"].ready .sec.active .more li::before { animation: tick .45s cubic-bezier(.3, 1.6, .5, 1) calc(var(--d, 0) * 110ms + .5s) both; }
+[data-motion="on"].ready .sec.active .ln { animation: seg .3s calc(var(--i) * .22s + var(--d, 0) * .3s + .5s) both; }
 .confetti { position: fixed; z-index: 40; width: 10px; height: 10px; border-radius: 3px; pointer-events: none; animation: pop .9s cubic-bezier(.2, .7, .4, 1) forwards; }
 .dancer img { max-width: none; width: 768px; height: 128px; }
 main:focus { outline: none; box-shadow: none; }
@@ -282,7 +395,7 @@ document.documentElement.dataset.motion = m || (matchMedia("(prefers-reduced-mot
   </div>
 </header>
 <main id="main" tabindex="-1">
-<section class="hero" aria-labelledby="hero-title">
+<section class="sec hero" id="top" aria-labelledby="hero-title">
   <div class="wrap">
     <div class="sticker">
       <h1 id="hero-title">shellkit</h1>
@@ -305,109 +418,129 @@ document.documentElement.dataset.motion = m || (matchMedia("(prefers-reduced-mot
   <div class="walker" aria-hidden="true"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="assets/crab-walk.webp" alt="" width="768" height="128"></div>
 </section>
 
-<section class="pad" aria-labelledby="line-title">
+<section class="sec" id="prompt" aria-labelledby="line-title">
   <div class="wrap center">
-    <h2 id="line-title">Every fact on one line</h2>
-    <p class="lead">Directory, branch, ahead / behind, dirty files with their diff stat, the merge request and its CI, your Claude agents and quota. Local facts show up right away; networked ones redraw in place when they land, no Enter needed.</p>
-    <div class="terminal reveal"><img src="assets/prompt.png" width="1816" height="236" loading="lazy"
-      alt="The shellkit prompt in a git repository: directory, branch, 1 commit ahead, 2 changed files with +15 −4 lines, merge request !482 with CI passed, 1 Claude agent and the 5 h / 7 d quota"></div>
+    <h2 id="line-title" class="enter">Every fact on one line</h2>
+    <p class="lead enter" style="--d:1">Local facts show up right away. The merge request and its CI come from the network: the prompt redraws in place when they land, no Enter needed.</p>
+    <div class="term-wrap enter" style="--d:2">
+      <div class="buddy b-point" aria-hidden="true"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="assets/crab-point.webp" alt="" width="768" height="128"></div>
+      <div class="term" role="img" aria-label="The shellkit prompt in a git repository: directory, branch, 1 commit ahead, 2 changed files with +15 −4 lines, merge request !482 with CI passed, 1 Claude agent and the 5 h / 7 d quota; below, the input line">
+        <div class="term-bar"><i></i><i></i><i></i><span>/home/dev/shop</span></div>
+        <div class="term-body">
+          <p><span class="seg t-dir" style="--t:0">/home/dev/shop</span><span class="seg" style="--t:.25"> · <span class="t-git">SHOP-482_checkout</span></span><span class="seg" style="--t:.45"> · <span class="t-git">⇡1</span></span><span class="seg" style="--t:.65"> <span class="t-dirty">✎ 2</span> <span class="t-add">+15</span> <span class="t-del">−4</span></span><span class="seg" style="--t:.85"> · </span><span class="t-mr"><span class="t-spin">↻</span><span class="seg t-mrv" style="--t:2.3">!482 <span class="t-add">✓</span></span></span><span class="t-right seg" style="--t:1.1"><span class="t-agent">✱ 1 agent</span> · <span class="t-q">5h</span> <span class="t-add">23%</span> <span class="t-q">7d</span> <span class="t-warn">41%</span></span></p>
+          <p><span class="t-add">$&nbsp;</span><span class="t-cmd">git push</span><span class="t-cur"></span></p>
+        </div>
+      </div>
+    </div>
     <ul class="plain stats">
-      <li class="reveal"><b>~35 ms</b>zsh startup</li>
-      <li class="reveal"><b>&lt; 50 ms</b>prompt, even on a huge repo</li>
-      <li class="reveal"><b>0</b>frameworks: plain zsh</li>
+      <li class="enter" style="--d:3"><b>~35 ms</b>zsh startup</li>
+      <li class="enter" style="--d:4"><b>&lt; 50 ms</b>prompt, even on a huge repo</li>
+      <li class="enter" style="--d:5"><b>0</b>frameworks: plain zsh</li>
     </ul>
   </div>
 </section>
 
-<section class="pad features" id="features" aria-labelledby="features-title">
+<section class="sec features" id="features" aria-labelledby="features-title">
   <div class="wrap">
-    <h2 id="features-title">Shell out, crab in</h2>
-    <p class="lead">Everything a busy shell needs, nothing it doesn't. Each block stays quiet until it has something to say.</p>
-    <ul class="plain grid">
-      <li class="card reveal"><picture><source type="image/avif" srcset="assets/async-480.avif 480w, assets/async-800.avif 800w" sizes="(max-width: 760px) calc(100vw - 40px), 540px"><img src="assets/async-800.webp" srcset="assets/async-480.webp 480w, assets/async-800.webp 800w" sizes="(max-width: 760px) calc(100vw - 40px), 540px" width="800" height="600" loading="lazy" decoding="async" alt="The crab surfing a huge wave on a surfboard shaped like a terminal window"></picture>
-        <div><h3>Async prompt</h3><p><code>git fetch</code>, the merge / pull request and its CI, unhealthy containers: all fetched in the background. The prompt redraws itself when they arrive.</p></div></li>
-      <li class="card reveal"><picture><source type="image/avif" srcset="assets/git-480.avif 480w, assets/git-800.avif 800w" sizes="(max-width: 760px) calc(100vw - 40px), 540px"><img src="assets/git-800.webp" srcset="assets/git-480.webp 480w, assets/git-800.webp 800w" sizes="(max-width: 760px) calc(100vw - 40px), 540px" width="800" height="600" loading="lazy" decoding="async" alt="The crab juggling glowing git branches under a disco ball"></picture>
-        <div><h3>Git at a glance</h3><p>Branch, worktree, ahead / behind, a diff stat, a rebase or bisect in progress with its conflicts, the branch's ticket and the review of its MR / PR.</p></div></li>
-      <li class="card reveal"><picture><source type="image/avif" srcset="assets/themes-480.avif 480w, assets/themes-800.avif 800w" sizes="(max-width: 760px) calc(100vw - 40px), 540px"><img src="assets/themes-800.webp" srcset="assets/themes-480.webp 480w, assets/themes-800.webp 800w" sizes="(max-width: 760px) calc(100vw - 40px), 540px" width="800" height="600" loading="lazy" decoding="async" alt="The crab painting its own shell with rainbow stripes"></picture>
-        <div><h3>Themes &amp; blocks</h3><p>The layout is a format string like <code>'{dir} · {git}'</code>. Colors are roles, icons are variables, a block is a small zsh function. Per-project looks too.</p></div></li>
-      <li class="card reveal"><picture><source type="image/avif" srcset="assets/plugins-480.avif 480w, assets/plugins-800.avif 800w" sizes="(max-width: 760px) calc(100vw - 40px), 540px"><img src="assets/plugins-800.webp" srcset="assets/plugins-480.webp 480w, assets/plugins-800.webp 800w" sizes="(max-width: 760px) calc(100vw - 40px), 540px" width="800" height="600" loading="lazy" decoding="async" alt="A party of hermit crabs swapping colorful shells, puzzle pieces floating above them"></picture>
-        <div><h3>Plugins</h3><p>Blocks and themes shared as git repositories, checked against a JSON schema. Nothing is fetched or run until you say yes.</p></div></li>
-    </ul>
+    <h2 id="features-title" class="enter">Shell out, crab in</h2>
+    <p class="lead enter" style="--d:1">Everything a busy shell needs, nothing it doesn't. Each block stays quiet until it has something to say.</p>
+    <div class="cards">
+      <div class="walker on-cards" aria-hidden="true"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="assets/crab-walk.webp" alt="" width="768" height="128"></div>
+      <ul class="plain grid" tabindex="0" aria-label="Features, scrolls sideways on small screens">
+        <li class="card enter" style="--d:2"><picture><source type="image/avif" srcset="assets/async-480.avif 480w, assets/async-800.avif 800w" sizes="(max-width: 640px) 82vw, (max-width: 1000px) 45vw, 260px"><img src="assets/async-800.webp" srcset="assets/async-480.webp 480w, assets/async-800.webp 800w" sizes="(max-width: 640px) 82vw, (max-width: 1000px) 45vw, 260px" width="800" height="600" loading="lazy" decoding="async" alt="The crab surfing a huge wave on a surfboard shaped like a terminal window"></picture>
+          <div><h3>Async prompt</h3><p><code>git fetch</code>, the MR / PR and its CI, unhealthy containers: fetched in the background, drawn when they arrive.</p></div></li>
+        <li class="card enter" style="--d:3"><picture><source type="image/avif" srcset="assets/git-480.avif 480w, assets/git-800.avif 800w" sizes="(max-width: 640px) 82vw, (max-width: 1000px) 45vw, 260px"><img src="assets/git-800.webp" srcset="assets/git-480.webp 480w, assets/git-800.webp 800w" sizes="(max-width: 640px) 82vw, (max-width: 1000px) 45vw, 260px" width="800" height="600" loading="lazy" decoding="async" alt="The crab juggling glowing git branches under a disco ball"></picture>
+          <div><h3>Git at a glance</h3><p>Branch, worktree, ahead / behind, a diff stat, a rebase in progress, the branch's ticket and its review.</p></div></li>
+        <li class="card enter" style="--d:4"><picture><source type="image/avif" srcset="assets/themes-480.avif 480w, assets/themes-800.avif 800w" sizes="(max-width: 640px) 82vw, (max-width: 1000px) 45vw, 260px"><img src="assets/themes-800.webp" srcset="assets/themes-480.webp 480w, assets/themes-800.webp 800w" sizes="(max-width: 640px) 82vw, (max-width: 1000px) 45vw, 260px" width="800" height="600" loading="lazy" decoding="async" alt="The crab painting its own shell with rainbow stripes"></picture>
+          <div><h3>Themes &amp; blocks</h3><p>A format string like <code>'{dir} · {git}'</code>, color roles, icon variables, blocks as small zsh functions.</p></div></li>
+        <li class="card enter" style="--d:5"><picture><source type="image/avif" srcset="assets/plugins-480.avif 480w, assets/plugins-800.avif 800w" sizes="(max-width: 640px) 82vw, (max-width: 1000px) 45vw, 260px"><img src="assets/plugins-800.webp" srcset="assets/plugins-480.webp 480w, assets/plugins-800.webp 800w" sizes="(max-width: 640px) 82vw, (max-width: 1000px) 45vw, 260px" width="800" height="600" loading="lazy" decoding="async" alt="A party of hermit crabs swapping colorful shells, puzzle pieces floating above them"></picture>
+          <div><h3>Plugins</h3><p>Blocks and themes shared as git repositories, checked against a schema. Nothing runs until you say yes.</p></div></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="sec more-sec" id="more" aria-labelledby="more-title">
+  <div class="wrap">
+    <div class="buddy b-dance" aria-hidden="true"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="assets/crab-dance.webp" alt="" width="768" height="128"></div>
+    <h2 id="more-title" class="enter">And a few more tricks</h2>
     <ul class="plain more">
-      <li class="reveal"><b>shkit</b>: one command to change settings, create project files, manage plugins and run <code>shkit doctor</code>. Changes apply at once.</li>
-      <li class="reveal"><b>Long commands notify you</b>: a desktop notification when one ends after 30 s.</li>
-      <li class="reveal"><b>Shell comforts</b>: jump to a visited directory by name, Esc Esc toggles <code>sudo</code>, shared unlimited history, colored <code>man</code>.</li>
-      <li class="reveal"><b>Self-updating</b>: daily, from releases that passed CI only. Local changes are never touched.</li>
-      <li class="reveal"><b>Bash fallback</b>: the same options and aliases, with a deliberately minimal prompt.</li>
-      <li class="reveal"><b>Secrets stay out</b>: tokens and machine settings live in <code>~/.config/shkit/</code>, never in the repository.</li>
+      <li class="enter" style="--d:1"><b>shkit</b>: one command to change settings, create project files, manage plugins and run <code>shkit doctor</code>. Changes apply at once.</li>
+      <li class="enter" style="--d:2"><b>Long commands notify you</b>: a desktop notification when one ends after 30 s.</li>
+      <li class="enter" style="--d:3"><b>Shell comforts</b>: jump to a visited directory by name, Esc Esc toggles <code>sudo</code>, shared unlimited history, colored <code>man</code>.</li>
+      <li class="enter" style="--d:4"><b>Self-updating</b>: daily, from releases that passed CI only. Local changes are never touched.</li>
+      <li class="enter" style="--d:5"><b>Bash fallback</b>: the same options and aliases, with a deliberately minimal prompt.</li>
+      <li class="enter" style="--d:6"><b>Secrets stay out</b>: tokens and machine settings live in <code>~/.config/shkit/</code>, never in the repository.</li>
     </ul>
   </div>
 </section>
 
-<section class="pad start" id="start" aria-labelledby="start-title">
+<section class="sec start" id="start" aria-labelledby="start-title">
   <div class="wrap">
-    <h2 id="start-title">Quick start</h2>
+    <h2 id="start-title" class="enter">Quick start</h2>
+    <div class="buddy b-type" aria-hidden="true"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="assets/crab-type.webp" alt="" width="768" height="128"></div>
     <ol class="plain steps">
-      <li><div>
+      <li class="enter" style="--d:1"><div>
         <h3>Clone and install</h3>
         <p>Links <code>~/.zshrc</code> and <code>~/.zshenv</code>, creates <code>~/.config/shkit</code>.</p>
         <div class="code"><pre><span class="p">$ </span>git clone https://github.com/fmatsos/shellkit.git ~/shellkit
 <span class="p">$ </span>~/shellkit/zsh/install.sh
 <span class="p">$ </span>exec zsh</pre><button type="button" class="copy">Copy<span class="sr-only"> the install commands</span></button></div>
       </div></li>
-      <li><div>
+      <li class="enter" style="--d:2"><div>
         <h3>Shape the prompt</h3>
         <p>No shell file to edit by hand.</p>
         <div class="code"><pre><span class="p">$ </span>shkit set format '{dir} · {git} · {mr}'   <span class="c"># the info line</span>
 <span class="p">$ </span>shkit set color_accent '38;5;33'           <span class="c"># a color role</span>
-<span class="p">$ </span>shkit project                              <span class="c"># settings for this repository only…</span>
-<span class="p">$ </span>shkit set -p format '{dir} · {git}'        <span class="c"># …used here and below</span>
+<span class="p">$ </span>shkit project                              <span class="c"># this repository only…</span>
+<span class="p">$ </span>shkit set -p format '{dir} · {git}'        <span class="c"># …here and below</span>
 <span class="p">$ </span>shkit show                                 <span class="c"># what is set, where</span></pre><button type="button" class="copy">Copy<span class="sr-only"> the prompt commands</span></button></div>
       </div></li>
-      <li><div>
+      <li class="enter" style="--d:3"><div>
         <h3>Check everything</h3>
-        <p>Versions, locale, font, tools and files. A <a href="https://www.nerdfonts.com">Nerd Font</a> is recommended for the icons.</p>
+        <p>Versions, locale, font, tools and files.</p>
         <div class="code"><pre><span class="p">$ </span>shkit doctor</pre><button type="button" class="copy">Copy<span class="sr-only"> the doctor command</span></button></div>
       </div></li>
     </ol>
-
-    <div class="table" tabindex="0" role="region" aria-label="Requirements table">
-      <table>
-        <caption>Requirements</caption>
-        <thead><tr><th scope="col">Need</th><th scope="col">Linux</th><th scope="col">macOS</th></tr></thead>
-        <tbody>
-          <tr><th scope="row">shell</th><td>zsh 5.8+ (bash 5.1+ for the fallback)</td><td>the system zsh; <code>brew install bash</code> for the fallback</td></tr>
-          <tr><th scope="row">git</th><td>yes</td><td>yes (Command Line Tools or Homebrew)</td></tr>
-          <tr><th scope="row">jq</th><td><code>apt install jq</code></td><td>built in since macOS 15, <code>brew install jq</code> before</td></tr>
-          <tr><th scope="row">optional</th><td><code>glab</code> / <code>gh</code> (MR / PR and CI), <code>docker</code></td><td>the same, via Homebrew</td></tr>
-        </tbody>
-      </table>
-    </div>
+    <p class="needs enter" style="--d:4">Needs zsh 5.8+ (bash 5.1+ for the fallback), git and jq; a <a href="https://www.nerdfonts.com">Nerd Font</a> for the icons. See <a href="docs/installation.html#requirements">every requirement</a>.</p>
   </div>
 </section>
 
-<section class="pad" id="docs" aria-labelledby="docs-title">
+<section class="sec" id="docs" aria-labelledby="docs-title">
   <div class="wrap">
-    <h2 id="docs-title">Dig deeper</h2>
+    <div class="buddy b-read" aria-hidden="true"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="assets/crab-read.webp" alt="" width="768" height="128"></div>
+    <h2 id="docs-title" class="enter">Dig deeper</h2>
     <ul class="plain docs-grid">
-      <li><a href="docs/installation.html"><b>Installation</b><span>requirements, Linux and macOS, bash fallback, updating</span></a></li>
-      <li><a href="docs/usage.html"><b>Usage</b><span>what the shells do for you day to day</span></a></li>
-      <li><a href="docs/configuration.html"><b>Configuration</b><span>where each setting lives and which one wins</span></a></li>
-      <li><a href="docs/shkit.html"><b><code>shkit</code> reference</b><span>the command that edits all of it</span></a></li>
-      <li><a href="docs/prompt.html"><b>The prompt</b><span>built-in blocks, format, colors, icons, behaviour</span></a></li>
-      <li><a href="docs/themes.html"><b>Writing a theme</b><span>A theme is a set of SHKIT_* assignments: layout, colors, icons</span></a></li>
-      <li><a href="docs/blocks.html"><b>Writing a block</b><span>A block is a zsh function, _prompt_seg_&lt;name&gt;, shown wherever a format has
+      <li class="enter" style="--d:1"><a href="docs/installation.html"><b>Installation</b><span>requirements, Linux and macOS, bash fallback, updating</span></a></li>
+      <li class="enter" style="--d:2"><a href="docs/usage.html"><b>Usage</b><span>what the shells do for you day to day</span></a></li>
+      <li class="enter" style="--d:3"><a href="docs/configuration.html"><b>Configuration</b><span>where each setting lives and which one wins</span></a></li>
+      <li class="enter" style="--d:4"><a href="docs/shkit.html"><b><code>shkit</code> reference</b><span>the command that edits all of it</span></a></li>
+      <li class="enter" style="--d:5"><a href="docs/prompt.html"><b>The prompt</b><span>built-in blocks, format, colors, icons, behaviour</span></a></li>
+      <li class="enter" style="--d:6"><a href="docs/themes.html"><b>Writing a theme</b><span>A theme is a set of SHKIT_* assignments: layout, colors, icons</span></a></li>
+      <li class="enter" style="--d:7"><a href="docs/blocks.html"><b>Writing a block</b><span>A block is a zsh function, _prompt_seg_&lt;name&gt;, shown wherever a format has
 {name}.</span></a></li>
-      <li><a href="docs/plugins.html"><b>Plugins</b><span>installing, writing and publishing blocks and themes</span></a></li>
-      <li><a href="docs/development.html"><b>Development</b><span>working on shellkit itself</span></a></li>
+      <li class="enter" style="--d:8"><a href="docs/plugins.html"><b>Plugins</b><span>installing, writing and publishing blocks and themes</span></a></li>
+      <li class="enter" style="--d:9"><a href="docs/development.html"><b>Development</b><span>working on shellkit itself</span></a></li>
     </ul>
   </div>
 </section>
 
+<nav class="rail" aria-label="Sections">
+  <ol class="plain">
+    <li><a href="#top"><span>Home</span></a></li>
+    <li><a href="#prompt"><span>The prompt</span></a></li>
+    <li><a href="#features"><span>Features</span></a></li>
+    <li><a href="#more"><span>More tricks</span></a></li>
+    <li><a href="#start"><span>Quick start</span></a></li>
+    <li><a href="#docs"><span>Docs</span></a></li>
+  </ol>
+  <div class="rail-thumb" aria-hidden="true"><img src="assets/mascot-96.webp" alt="" width="96" height="96"></div>
+</nav>
+
 </main>
 <footer class="foot">
   <div class="wrap">
-    <div class="dancer" aria-hidden="true"><img src="./assets/crab-dance.webp" alt="" width="768" height="128" loading="lazy"></div>
+    <div class="dancer" aria-hidden="true"><img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="./assets/crab-dance.webp" alt="" width="768" height="128"></div>
     <nav aria-label="Footer">
       <ul class="plain">
         <li><a href="./docs/">Documentation</a></li>
@@ -421,10 +554,20 @@ document.documentElement.dataset.motion = m || (matchMedia("(prefers-reduced-mot
 </footer>
 <p class="sr-only" role="status" id="status"></p>
 <script>
-/* shellkit site: the animations switch, reveal on scroll, copy buttons, hero tilt. */
+/* shellkit site: the animations switch, copy buttons, hero tilt; on the landing page the
+   full-screen sections, their entrances and the scroll rail. */
 (() => {
   const html = document.documentElement, btn = document.getElementById("motion"), status = document.getElementById("status");
   const on = () => html.dataset.motion === "on";
+
+  // decorative sprites: loaded after the page, and only while animations are on
+  let loaded = false;
+  const sprites = () => {
+    if (loaded || !on() || document.readyState !== "complete") return;
+    loaded = true;
+    document.querySelectorAll("img[data-src]").forEach(i => { i.src = i.dataset.src; });
+  };
+  addEventListener("load", sprites);
 
   // RGAA 13.8: every looping animation can be stopped, and the choice sticks
   btn.hidden = false;
@@ -433,20 +576,8 @@ document.documentElement.dataset.motion = m || (matchMedia("(prefers-reduced-mot
     html.dataset.motion = on() ? "off" : "on";
     btn.setAttribute("aria-pressed", String(on()));
     try { localStorage.setItem("shkit-motion", html.dataset.motion); } catch (e) {}
+    sprites();
   });
-
-  // decorative sprites wait for the page: they never compete with the hero image
-  addEventListener("load", () => document.querySelectorAll("img[data-src]").forEach(i => { i.src = i.dataset.src; }));
-
-  // pop-in on scroll: only what's below the fold, never the hero (LCP)
-  const items = document.querySelectorAll(".reveal");
-  if ("IntersectionObserver" in window) {
-    const io = new IntersectionObserver(es => es.forEach(e => {
-      if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
-    }), { rootMargin: "0px 0px -10% 0px" });
-    items.forEach(el => { if (el.getBoundingClientRect().top < innerHeight) el.classList.add("in"); else io.observe(el); });
-    html.classList.add("ready");
-  }
 
   // copy buttons: the commands without prompts or comments, a status message, confetti
   const colors = ["#ff6b1a", "#ff2e88", "#14c4bd", "#ffd23f", "#7b3fe4"];
@@ -479,6 +610,64 @@ document.documentElement.dataset.motion = m || (matchMedia("(prefers-reduced-mot
     });
     art.parentElement.addEventListener("pointerleave", () => { art.style.removeProperty("--tx"); art.style.removeProperty("--ty"); });
   }
+
+  if (!html.classList.contains("landing")) return;
+
+  // ---- landing: sections, one screen each ----
+  const secs = [...document.querySelectorAll(".sec")], top = document.querySelector(".top");
+  const links = [...document.querySelectorAll(".rail a")];
+  const max = () => document.documentElement.scrollHeight - innerHeight;
+
+  // the typed lines of the quick start: one span per line, shown one after the other
+  document.querySelectorAll(".start pre").forEach(pre => {
+    pre.innerHTML = pre.innerHTML.split("\n").map((l, i) => `<span class="ln" style="--i:${i}">${l}</span>`).join("\n");
+  });
+
+  // mandatory snapping only when every section fits the screen; proximity otherwise (zoom, small screens)
+  const fit = () => {
+    html.style.setProperty("--hh", top.offsetHeight + "px");
+    const room = innerHeight - top.offsetHeight + 1;
+    html.classList.toggle("snap", secs.every(s => s.offsetHeight <= room));
+  };
+  new ResizeObserver(fit).observe(top);
+  // how far the crab walks along the cards (--cw, in the walk keyframes)
+  const cards = document.querySelector(".cards");
+  new ResizeObserver(() => cards.style.setProperty("--cw", cards.clientWidth + "px")).observe(cards);
+  addEventListener("resize", fit);
+
+  // the section under the middle of the screen is the current one (the last one at the very bottom)
+  let cur;
+  const current = () => {
+    const mid = innerHeight / 2, end = scrollY >= max() - 2;
+    const s = end ? secs.at(-1) : secs.find(x => { const r = x.getBoundingClientRect(); return r.top <= mid && r.bottom > mid; });
+    if (!s || s === cur) return;
+    cur = s;
+    secs.forEach(x => x.classList.toggle("active", x === s));
+    links.forEach(a => a.getAttribute("href") === "#" + s.id ? a.setAttribute("aria-current", "true") : a.removeAttribute("aria-current"));
+  };
+
+  // the rail: the crab thumb follows the scroll, and can be dragged; a click on the track jumps there
+  const rail = document.querySelector(".rail"), thumb = rail.querySelector(".rail-thumb");
+  const place = () => { thumb.style.transform = `translateY(${(scrollY / Math.max(1, max())) * (rail.clientHeight - thumb.offsetHeight)}px)`; };
+  addEventListener("scroll", () => { current(); requestAnimationFrame(place); }, { passive: true });
+  ["load", "hashchange", "resize"].forEach(e => addEventListener(e, () => { current(); place(); }));
+  place(); current();
+  html.classList.add("ready");
+  const toY = e => {
+    const r = rail.getBoundingClientRect();
+    return Math.min(1, Math.max(0, (e.clientY - r.top - thumb.offsetHeight / 2) / (r.height - thumb.offsetHeight))) * max();
+  };
+  thumb.addEventListener("pointerdown", e => {
+    e.preventDefault(); thumb.setPointerCapture(e.pointerId); html.classList.add("dragging");
+    const move = ev => scrollTo({ top: toY(ev), behavior: "instant" });
+    const up = () => { html.classList.remove("dragging"); thumb.removeEventListener("pointermove", move); thumb.removeEventListener("pointerup", up); };
+    thumb.addEventListener("pointermove", move); thumb.addEventListener("pointerup", up);
+  });
+  rail.addEventListener("click", e => { if (!e.target.closest("a") && !e.target.closest(".rail-thumb")) scrollTo({ top: toY(e) }); });
+  // WCAG 1.4.13: Escape hides the labels shown on hover / focus
+  addEventListener("keydown", e => { if (e.key === "Escape") rail.classList.add("quiet"); });
+  rail.addEventListener("pointerleave", () => rail.classList.remove("quiet"));
+  rail.addEventListener("focusout", () => rail.classList.remove("quiet"));
 })();
 
 </script>

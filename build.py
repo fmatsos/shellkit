@@ -26,6 +26,9 @@ TAGLINE = ("A plain zsh / bash setup for Linux and macOS, with an async, themeab
            "that never makes you wait for the network. No framework, zsh starts in about 35 ms.")
 
 
+BLANK = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="  # a sprite's src until it loads
+
+
 def fail(msg):
     sys.exit(f"build.py: {msg}")
 
@@ -107,12 +110,12 @@ def convert(raw, docs, out_assets):
     return h
 
 
-def page(layout, css, js, *, root, path, title, og_title, description, main, head="", docs_current="", sitemap_current=""):
+def page(layout, css, js, *, root, path, title, og_title, description, main, head="", docs_current="", sitemap_current="", html_class=""):
     out = layout
     for k, v in (("head", head), ("css", css), ("js", js), ("main", main), ("title", html.escape(title)),
                  ("og_title", html.escape(og_title)), ("description", html.escape(description)),
                  ("url", URL + path.replace("index.html", "")), ("site", URL), ("docs_current", docs_current),
-                 ("sitemap_current", sitemap_current), ("root", root)):
+                 ("sitemap_current", sitemap_current), ("html_class", html_class), ("blank", BLANK), ("root", root)):
         out = out.replace("{{" + k + "}}", v)
     if "{{" in out:
         fail(f"{path}: unfilled placeholder {re.search(r'{{[^}]*}}', out)[0]}")
@@ -199,16 +202,17 @@ def main():
                            og_title=plain, description=desc, main=main_html,
                            docs_current=' aria-current="page"' if index else "")
 
-    cards = "\n".join(f'      <li><a href="docs/{n}.html"><b>{inline_md(t)}</b><span>{html.escape(d or text(re.search(r"<p>(.*?)</p>", rendered[n][1], re.S)[1]).split(". ")[0])}</span></a></li>'
-                      for n, t, d in toc)
-    home = (SRC / "home.html").read_text().replace("{{docs_cards}}", cards)
+    cards = "\n".join(f'      <li class="enter" style="--d:{i + 1}"><a href="docs/{n}.html"><b>{inline_md(t)}</b><span>{html.escape(d or text(re.search(r"<p>(.*?)</p>", rendered[n][1], re.S)[1]).split(". ")[0])}</span></a></li>'
+                      for i, (n, t, d) in enumerate(toc))
+    home = (SRC / "home.html").read_text().replace("{{docs_cards}}", cards).replace("{{blank}}", BLANK) \
+        .replace("{{card_sizes}}", "(max-width: 640px) 82vw, (max-width: 1000px) 45vw, 260px")
     ld = ('<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareSourceCode",'
           f'"name":"shellkit","description":"{TAGLINE}","codeRepository":"{REPO}",'
           '"programmingLanguage":"Shell","license":"https://unlicense.org","url":"' + URL + '"}</script>\n'
           '<link rel="preload" as="image" type="image/avif" imagesrcset="assets/hero-640.avif 640w, assets/hero-1200.avif 1200w" '
           'imagesizes="(max-width: 860px) calc(100vw - 44px), 560px" fetchpriority="high">')
     pages["index.html"] = page(layout, css, js, root="./", path="index.html", title="shellkit: a funky, plain zsh / bash setup",
-                               og_title="shellkit", description=TAGLINE, main=home, head=ld)
+                               og_title="shellkit", description=TAGLINE, main=home, head=ld, html_class="landing")
 
     items = "\n".join(f'<li><a href="docs/{n}.html">{inline_md(t)}</a></li>' for n, t, _ in toc)
     sitemap = (f'<div class="band"><div class="wrap"><div class="sticker"><h1>Site map</h1></div></div></div>\n'
