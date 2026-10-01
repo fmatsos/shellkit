@@ -361,6 +361,20 @@ main:focus { outline: none; box-shadow: none; }
 html[data-motion="off"] { scroll-behavior: auto; }
 .toc code, .pager code, .docs-grid code { font-family: inherit; }
 
+/* the transition between sections: a full-screen veil, shaped by site.js, dressed by its kind */
+.veil { display: none; position: fixed; inset: 0; z-index: 60; place-items: center; pointer-events: none; background: var(--navy); }
+.veil.on { display: grid; }
+.veil-line { font: 400 clamp(2.2rem, 1.4rem + 4vw, 4.4rem) "Shrikhand", cursive; color: var(--yellow); text-shadow: 2px 2px 0 var(--ink), -2px -2px 0 var(--ink), 2px -2px 0 var(--ink), -2px 2px 0 var(--ink), 0 2px 0 var(--ink), 0 -2px 0 var(--ink), 6px 6px 0 var(--ink); padding: 0 16px; text-align: center; }
+.veil[data-kind="wave"] { background: linear-gradient(180deg, #fff4e0 0 2%, var(--teal) 6%, #0e8f8a 100%); }
+.veil[data-kind="segments"] { background: linear-gradient(115deg, var(--orange) 0 25%, var(--magenta) 25% 50%, var(--purple) 50% 75%, var(--teal) 75%); }
+.veil[data-kind="sunburst"] { background: repeating-conic-gradient(from 0deg at 50% 50%, var(--yellow) 0 10deg, var(--orange) 10deg 20deg); }
+.veil[data-kind="sunburst"] .veil-line { color: var(--cream); }
+.veil[data-kind="dots"] { background: radial-gradient(var(--cream) 22%, transparent 24%) 0 0 / 36px 36px, var(--magenta); }
+.veil[data-kind="dots"] .veil-line { color: var(--yellow); }
+.veil[data-kind="shell"] { background: repeating-linear-gradient(45deg, var(--orange) 0 18px, #ff8a40 18px 36px); }
+.veil[data-kind="shell"] .veil-line { color: var(--cream); }
+.veil[data-kind="book"] { background: var(--purple); box-shadow: inset 0 0 0 10px var(--ink), inset 0 0 0 14px var(--yellow); }
+
 </style>
 <script>
 /* animations: on unless the visitor turned them off here, or asks for reduced motion */
@@ -578,6 +592,77 @@ document.documentElement.dataset.motion = m || (matchMedia("(prefers-reduced-mot
 
   // the rail: the crab thumb follows the scroll, and can be dragged; a click on the track jumps there
   const rail = document.querySelector(".rail"), thumb = rail.querySelector(".rail-thumb");
+  // between sections, a transition of shellkit's own: it covers the screen, the page jumps under it,
+  // then it uncovers the new section; each has its own (a wave, the prompt's segments, a sunburst,
+  // polka dots, a crab-shell diamond, a book closing). One wheel step or arrow key is one move:
+  // the rest of a tall section first, then the next section. Touch and motion off scroll natively.
+  const veil = document.querySelector(".veil"), veilLine = veil.querySelector(".veil-line");
+  const shapes = {
+    wave: [["ellipse(150% 0% at 50% 100%)", "ellipse(150% 150% at 50% 100%)"], ["ellipse(150% 150% at 50% 0%)", "ellipse(150% 0% at 50% 0%)"]],
+    segments: [["inset(0 100% 0 0)", "inset(0 0 0 0)"], ["inset(0 0 0 0)", "inset(0 0 0 100%)"]],
+    sunburst: [["circle(0% at 50% 50%)", "circle(75% at 50% 50%)"], ["circle(75% at 50% 50%)", "circle(0% at 50% 50%)"]],
+    dots: [["inset(0 0 100% 0)", "inset(0 0 0 0)"], ["inset(0 0 0 0)", "inset(100% 0 0 0)"]],
+    shell: [["polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%)", "polygon(50% -60%, 160% 50%, 50% 160%, -60% 50%)"], ["polygon(50% -60%, 160% 50%, 50% 160%, -60% 50%)", "polygon(50% 50%, 50% 50%, 50% 50%, 50% 50%)"]],
+    book: [["inset(0 50% 0 50%)", "inset(0 0 0 0)"], ["inset(0 0 0 0)", "inset(0 50% 0 50%)"]],
+  };
+  const kinds = Object.keys(shapes);
+  const label = s => { const a = links.find(l => l.getAttribute("href") === "#" + s.id); return a ? a.textContent.trim() : s.id; };
+  const topOf = s => s.getBoundingClientRect().top + scrollY - top.offsetHeight;
+  let moving = false, last = 0;
+  const travel = s => {
+    const y = Math.max(0, Math.round(topOf(s)));
+    if (!on()) { scrollTo({ top: y, behavior: "instant" }); return; }
+    moving = true;
+    const kind = kinds[secs.indexOf(s) % kinds.length], [inn, out] = shapes[kind], ease = "cubic-bezier(.65, 0, .35, 1)";
+    veil.dataset.kind = kind;
+    veilLine.textContent = label(s);
+    veil.classList.add("on");
+    // timers drive the steps, the animations only draw them: a hidden tab holds animation events back
+    const cover = veil.animate({ clipPath: inn }, { duration: 450, easing: ease, fill: "forwards" });
+    setTimeout(() => scrollTo({ top: y, behavior: "instant" }), 450);
+    setTimeout(() => {
+      const reveal = veil.animate({ clipPath: out }, { duration: 500, easing: ease, fill: "forwards" });
+      cover.cancel();
+      setTimeout(() => { reveal.cancel(); veil.classList.remove("on"); moving = false; }, 500);
+    }, 630);
+  };
+  const fine = matchMedia("(pointer: fine)");
+  addEventListener("wheel", e => {
+    if (!on() || !fine.matches || e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+    e.preventDefault();
+    const now = performance.now(), fresh = now - last > 200;   // a trackpad's inertia counts once
+    last = now;
+    if (!fresh || moving) return;
+    step(Math.sign(e.deltaY));
+  }, { passive: false });
+  // the arrow keys step the same way, except in a form field
+  addEventListener("keydown", e => {
+    if (!on() || !["ArrowDown", "ArrowUp"].includes(e.key)) return;
+    if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || e.target.closest("input, textarea, select, [contenteditable]")) return;
+    e.preventDefault();
+    if (!moving) step(e.key === "ArrowDown" ? 1 : -1);
+  });
+  function step(dir) {
+    const hh = top.offsetHeight, i = secs.indexOf(cur), s = secs[i];
+    const r = s.getBoundingClientRect();
+    if (dir > 0) {
+      if (r.bottom > innerHeight + 2) scrollTo({ top: scrollY + Math.min(r.bottom - innerHeight, (innerHeight - hh) * .8), behavior: "smooth" });
+      else if (secs[i + 1]) travel(secs[i + 1]);
+    } else {
+      if (r.top < hh - 2) scrollTo({ top: scrollY - Math.min(hh - r.top, (innerHeight - hh) * .8), behavior: "smooth" });
+      else if (secs[i - 1]) travel(secs[i - 1]);
+    }
+  }
+  document.querySelectorAll("a[href^='#']").forEach(a => {
+    const s = secs.find(x => "#" + x.id === a.getAttribute("href"));
+    if (s) a.addEventListener("click", e => {
+      if (!on() || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      e.preventDefault();
+      history.pushState(null, "", "#" + s.id);
+      if (s !== cur && !moving) travel(s);
+    });
+  });
+
   const place = () => { thumb.style.transform = `translateY(${(scrollY / Math.max(1, max())) * (rail.clientHeight - thumb.offsetHeight)}px)`; };
   addEventListener("scroll", () => { current(); requestAnimationFrame(place); }, { passive: true });
   ["load", "hashchange", "resize"].forEach(e => addEventListener(e, () => { current(); place(); }));

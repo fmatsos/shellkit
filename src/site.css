@@ -333,3 +333,17 @@ main:focus { outline: none; box-shadow: none; }
 .table code { overflow-wrap: normal; white-space: nowrap; }
 html[data-motion="off"] { scroll-behavior: auto; }
 .toc code, .pager code, .docs-grid code { font-family: inherit; }
+
+/* the transition between sections: a full-screen veil, shaped by site.js, dressed by its kind */
+.veil { display: none; position: fixed; inset: 0; z-index: 60; place-items: center; pointer-events: none; background: var(--navy); }
+.veil.on { display: grid; }
+.veil-line { font: 400 clamp(2.2rem, 1.4rem + 4vw, 4.4rem) "Shrikhand", cursive; color: var(--yellow); text-shadow: 2px 2px 0 var(--ink), -2px -2px 0 var(--ink), 2px -2px 0 var(--ink), -2px 2px 0 var(--ink), 0 2px 0 var(--ink), 0 -2px 0 var(--ink), 6px 6px 0 var(--ink); padding: 0 16px; text-align: center; }
+.veil[data-kind="wave"] { background: linear-gradient(180deg, #fff4e0 0 2%, var(--teal) 6%, #0e8f8a 100%); }
+.veil[data-kind="segments"] { background: linear-gradient(115deg, var(--orange) 0 25%, var(--magenta) 25% 50%, var(--purple) 50% 75%, var(--teal) 75%); }
+.veil[data-kind="sunburst"] { background: repeating-conic-gradient(from 0deg at 50% 50%, var(--yellow) 0 10deg, var(--orange) 10deg 20deg); }
+.veil[data-kind="sunburst"] .veil-line { color: var(--cream); }
+.veil[data-kind="dots"] { background: radial-gradient(var(--cream) 22%, transparent 24%) 0 0 / 36px 36px, var(--magenta); }
+.veil[data-kind="dots"] .veil-line { color: var(--yellow); }
+.veil[data-kind="shell"] { background: repeating-linear-gradient(45deg, var(--orange) 0 18px, #ff8a40 18px 36px); }
+.veil[data-kind="shell"] .veil-line { color: var(--cream); }
+.veil[data-kind="book"] { background: var(--purple); box-shadow: inset 0 0 0 10px var(--ink), inset 0 0 0 14px var(--yellow); }
