@@ -83,7 +83,10 @@
     const r = cards.getBoundingClientRect(), k = c.getBoundingClientRect();
     return [k.left - r.left + (k.width - hopper.offsetWidth) / 2, k.top - r.top - hopper.offsetHeight + 8];
   };
-  const stand = () => { if (at >= 0) { const [x, y] = spot(all[at]); hopper.style.transform = `translate(${x}px, ${y}px)`; } };
+  // position in `translate`, the outermost transform: `scale` then squashes the crab around its feet
+  // without scaling its offset, and `transform` only holds the flip, kept after landing
+  const pose = ([x, y]) => `${x}px ${y}px`;
+  const stand = () => { if (at >= 0) hopper.style.translate = pose(spot(all[at])); };
   const hop = () => {
     clearTimeout(timer);
     if (!on() || cur !== features) return;   // only while it can be seen
@@ -93,15 +96,26 @@
     if (!seen.length) { timer = setTimeout(hop, 800); return; }
     const next = seen.find(c => all.indexOf(c) > at) || seen[0];   // one card in view: it bounces on it
     const from = at >= 0 ? spot(all[at]) : spot(next), to = spot(next);
-    const flip = to[0] < from[0] ? " scaleX(-1)" : "", peak = Math.min(from[1], to[1]) - 90;
-    const jump = hopper.animate([
-      { transform: `translate(${from[0]}px, ${from[1]}px)${flip}`, easing: "ease-out" },
-      { transform: `translate(${(from[0] + to[0]) / 2}px, ${peak}px)${flip}`, easing: "ease-in" },
-      { transform: `translate(${to[0]}px, ${to[1]}px)${flip}` }], { duration: 700, fill: "forwards" });
-    jump.onfinish = () => {
-      at = all.indexOf(next); stand(); jump.cancel();
-      next.animate([{ translate: "0 0" }, { translate: "0 12px", scale: "1.02 .96" }, { translate: "0 0" }], { duration: 400, easing: "ease-out" });
-      timer = setTimeout(hop, 1100);
+    const dx = to[0] - from[0], dy = to[1] - from[1], dist = Math.hypot(dx, dy);
+    if (Math.abs(dx) > 1) hopper.style.transform = dx < 0 ? "scaleX(-1)" : "";
+    // a ballistic arc: x linear in time, y a parabola, sampled finely so nothing reads as a corner
+    const height = Math.min(150, 50 + dist * .18), duration = Math.min(1150, 650 + dist * .6), n = 24;
+    const frames = Array.from({ length: n + 1 }, (_, i) => {
+      const t = i / n;
+      return { translate: pose([from[0] + dx * t, from[1] + dy * t - 4 * height * t * (1 - t)]) };
+    });
+    // anticipation: crouch, stretch on take-off, squash on landing
+    const crouch = hopper.animate([{ scale: "1 1" }, { scale: "1.08 .9" }], { duration: 160, easing: "ease-out", fill: "forwards" });
+    crouch.onfinish = () => {
+      crouch.cancel();
+      hopper.animate([{ scale: "1.08 .9" }, { scale: ".94 1.08", offset: .25 }, { scale: "1 1", offset: .6 }, { scale: "1 1" }], { duration, easing: "linear" });
+      const jump = hopper.animate(frames, { duration, easing: "linear", fill: "forwards" });
+      jump.onfinish = () => {
+        at = all.indexOf(next); stand(); jump.cancel();
+        hopper.animate([{ scale: "1.1 .88" }, { scale: ".98 1.03", offset: .55 }, { scale: "1 1" }], { duration: 320, easing: "ease-out" });
+        next.animate([{ translate: "0 0" }, { translate: "0 8px", scale: "1.01 .97" }, { translate: "0 0" }], { duration: 380, easing: "ease-out" });
+        timer = setTimeout(hop, 1300);
+      };
     };
   };
   btn.addEventListener("click", hop);
