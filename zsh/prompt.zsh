@@ -17,6 +17,13 @@
 # Security: PROMPT_SUBST stays off and every dynamic text goes through
 # _prompt_esc, so a branch named '$(…)' or '%F' is printed, never run.
 
+# Here, not in zshrc: the prompt alone (sourced from your own zshrc) needs it too.
+# A terminal launched from a GUI app (macOS) may start with no locale: zsh then
+# can't read the prompt's icons ("character not in range") and miscounts its width.
+# UTF-8 for characters only (messages, dates untouched); LC_ALL set = left alone.
+[[ -z $LC_ALL && ${LC_CTYPE:-$LANG} != *.(UTF-8|utf-8|UTF8|utf8) ]] &&
+  export LC_CTYPE=${${OSTYPE:#darwin*}:+C.}UTF-8   # macOS: UTF-8, Linux: C.UTF-8
+
 zmodload zsh/datetime zsh/system
 zmodload -F zsh/stat b:zstat   # zstat only: a plain load would shadow the stat binary
 

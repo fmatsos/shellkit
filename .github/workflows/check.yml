@@ -33,7 +33,7 @@ jobs:
       - name: zsh, prompt only (prompt.zsh in your own zshrc) and tried (zsh/try.sh)
         run: |
           export h=$(mktemp -d); printf 'source %s/zsh/prompt.zsh\n' "$PWD" >"$h/.zshrc"
-          HOME=$h zsh -ic 'cd $h; _prompt_precmd; [[ ${(%)PROMPT} == *${h:t}* ]] && shkit set separator x && [[ -r ~/.config/shkit/theme.zsh ]]' </dev/null
+          HOME=$h env -u LC_ALL -u LANG -u LC_CTYPE zsh -ic 'cd $h; _prompt_precmd; [[ ${(%)PROMPT} == *${h:t}* ]] && shkit set separator x && [[ -r ~/.config/shkit/theme.zsh ]]' </dev/null
           export h=$(mktemp -d)
           HOME=$h zsh/try.sh -c 'shkit set separator x && [[ -r $SHELL_LOCAL_DIR/theme.zsh && $(whence -w _zshrc_jump) == *function ]]' </dev/null
           [ -z "$(ls -A "$h")" ]   # nothing left in HOME

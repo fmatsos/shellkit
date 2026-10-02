@@ -9,12 +9,6 @@ SHELL_LOCAL_DIR=${SHELL_LOCAL_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/shkit}   # 
 [[ -d ${SHELL_LOCAL_DIR%/*}/shell && ! -e $SHELL_LOCAL_DIR ]] &&   # renamed with shellkit
   echo "shellkit: ~/.config/shell not migrated, run shell/install-local.sh" >&2
 
-# A terminal launched from a GUI app (macOS) may start with no locale: zsh then
-# can't read the prompt's icons ("character not in range") and miscounts its width.
-# UTF-8 for characters only (messages, dates untouched); LC_ALL set = left alone.
-[[ -z $LC_ALL && ${LC_CTYPE:-$LANG} != *.(UTF-8|utf-8|UTF8|utf8) ]] &&
-  export LC_CTYPE=${${OSTYPE:#darwin*}:+C.}UTF-8   # macOS: UTF-8, Linux: C.UTF-8
-
 # --- Options ------------------------------------------------------------------
 setopt AUTO_CD            # `www` = `cd www`
 setopt NO_CLOBBER         # `>` never overwrites a file; `>|` does it on purpose

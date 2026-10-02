@@ -105,7 +105,7 @@ reports this mode as `prompt only`.
 - **Bash**: `/bin/bash` is 3.2, too old for `bashrc`. With it, `bashrc` prints a
   message and stops. Install bash 5 with Homebrew and use that one. The install
   scripts themselves run on 3.2.
-- **Locale**: a terminal started from a GUI app may have no locale. `zshrc` then
+- **Locale**: a terminal started from a GUI app may have no locale. The prompt then
   sets `LC_CTYPE` to UTF-8 so the icons display.
 - **Terminal.app** keeps one history per tab by default. `zshenv` turns that off,
   so every tab shares one history.
