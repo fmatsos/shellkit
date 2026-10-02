@@ -494,7 +494,8 @@ Prefer zsh builtins (<code>zstat</code>, <code>$EPOCHREALTIME</code>, <code>${fi
 <strong>No secrets in the file.</strong> Read a variable (<code>$GITLAB_TOKEN</code>) that the user sets
 in <code>secrets.sh</code>.</li>
 </ol>
-<p>Block names are lowercase letters, digits and <code>_</code>.</p>
+<p>Block names are lowercase letters, digits and <code>_</code>. A dot is kept for the built-ins'
+variants (<code>{dir.short}</code>, <code>{git.untracked}</code>).</p>
 <h2 id="colors-and-icons">Colors and icons</h2>
 <p>Never write color codes or glyphs directly in the function. Use the variables built
 from the settings:</p>

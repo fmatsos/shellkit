@@ -440,11 +440,13 @@ That stays under 50 ms even in a 35,000-file repository.</p>
 <code>git fetch</code>, for a true behind count;</li>
 <li>the merge / pull request, its CI and its review, through <code>glab</code> / <code>gh</code>;</li>
 <li>
-<code>docker ps</code>.</li>
+<code>docker ps</code>;</li>
+<li>the untracked files of <code>{git.untracked}</code>, counted again at each new prompt.</li>
 </ul>
 <p>When a cache entry is older than its TTL, a background job refreshes it and a
 muted <code>↻</code> shows. When the job finishes, the prompt redraws in place, without
-pressing Enter. Every job has a timeout, and only one runs per cache entry.</p>
+pressing Enter. Every job has a timeout, and only one runs per cache entry. The
+untracked count shows no <code>↻</code>: it would show at every prompt.</p>
 <h2 id="built-in-blocks">Built-in blocks</h2>
 <table>
 <thead>
@@ -467,10 +469,20 @@ pressing Enter. Every job has a timeout, and only one runs per cache entry.</p>
 <td>local</td>
 </tr>
 <tr>
+<td><code>{dir.short}</code></td>
+<td>the current directory from its repository's root (<code>shop/src/Cart</code>), else with <code>~</code> for your home</td>
+<td>local</td>
+</tr>
+<tr>
 <td><code>{git}</code></td>
 <td>branch (<code>wt</code> in a linked worktree), ahead ⇡ / behind ⇣, changed files with <code>+added −removed</code> lines, an operation in progress (<code>rebase 2/5</code>, <code>merge</code>, <code>cherry-pick</code>, <code>revert</code>, <code>bisect</code>) with its conflicts</td>
 <td>local, plus a background <code>git fetch</code>
 </td>
+</tr>
+<tr>
+<td><code>{git.untracked}</code></td>
+<td>how many files git doesn't track, <code>?3</code> (an untracked directory counts once, as in <code>git status</code>)</td>
+<td>a background count at each new prompt</td>
 </tr>
 <tr>
 <td><code>{ticket}</code></td>
@@ -743,8 +755,8 @@ shkit <span class="pl-c1">set</span> quota_palette 108 150 185 227 221 215 209 1
 <td><code>SHKIT_ICON_HOST</code></td>
 <td>none</td>
 <td></td>
-<td></td>
-<td></td>
+<td><code>SHKIT_ICON_UNTRACKED</code></td>
+<td><code>?</code></td>
 </tr>
 </tbody>
 </table>
@@ -778,6 +790,11 @@ Nerd Font</em> as a fallback font in your terminal.</p>
 <td><code>SHKIT_TITLE_SPINNER</code></td>
 <td><code>true</code></td>
 <td>animate the tab title while a refresh runs</td>
+</tr>
+<tr>
+<td><code>SHKIT_TRANSIENT</code></td>
+<td><code>false</code></td>
+<td>once a line is run, its prompt shrinks to the <code>$</code> line: the scrollback keeps your commands without an info line each. A line abandoned with <kbd>Ctrl</kbd>+<kbd>C</kbd> keeps its full prompt</td>
 </tr>
 <tr>
 <td><code>SHKIT_FETCH_TTL</code></td>

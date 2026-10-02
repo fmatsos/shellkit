@@ -422,7 +422,6 @@ options and aliases, but with a minimal prompt.</p>
 <li><a href="#options">Options</a></li>
 <li><a href="#completion">Completion</a></li>
 <li><a href="#aliases-and-functions">Aliases and functions</a></li>
-<li><a href="#scripts">Scripts</a></li>
 <li><a href="#the-bash-fallback">The bash fallback</a></li>
 </ul>
 <h2 id="jump-to-a-directory-by-its-name">Jump to a directory by its name</h2>
@@ -577,18 +576,8 @@ with <code>&lt;prefix&gt;</code>, case-insensitive: <code>feature/SHOP-42_checko
 <td><code>git push --force-with-lease</code></td>
 </tr>
 <tr>
-<td><code>gclean</code></td>
-<td><code>git-cleanup --verbose</code></td>
-</tr>
-<tr>
 <td><code>dstop</code></td>
 <td>stops every running Docker container</td>
-</tr>
-<tr>
-<td>
-<code>rmc</code> / <code>rml</code>
-</td>
-<td>in a Symfony project, delete <code>var/cache</code> / <code>var/log</code> (uses <code>sudo</code>)</td>
 </tr>
 </tbody>
 </table>
@@ -600,25 +589,6 @@ Because <code>cp</code>, <code>mv</code> and <code>mkdir</code> are aliases, a s
 should call <code>command mkdir</code> and the like. Scripts that are <em>executed</em> (with a
 shebang) don't see aliases.</p>
 </blockquote>
-<h2 id="scripts">Scripts</h2>
-<p><code>bin/</code> holds standalone scripts. The install scripts don't install them: put
-<code>bin/</code> in your <code>PATH</code>, or link the ones you want into <code>~/.local/bin</code> (already in
-<code>PATH</code>).</p>
-<table>
-<thead>
-<tr>
-<th>Script</th>
-<th>Does</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>usephp 8.2</code></td>
-<td>points <code>~/.bin/php</code> at PHP 8.2 (Debian's <code>php8.2</code> or Homebrew's <code>php@8.2</code>), falling back to the default <code>php</code>
-</td>
-</tr>
-</tbody>
-</table>
 <h2 id="the-bash-fallback">The bash fallback</h2>
 <p><code>bash/bashrc</code> has the same options (<code>autocd</code>, <code>cdspell</code>, <code>dirspell</code>, <code>globstar</code>,
 <code>noclobber</code>), the same unlimited shared history with prefix search, <kbd>Esc</kbd>
