@@ -500,7 +500,11 @@ document.documentElement.dataset.motion = m || (matchMedia("(prefers-reduced-mot
 <h2 id="principles">Principles</h2>
 <ul>
 <li>
-<strong>Plain shell, no framework.</strong> Startup stays under 60 ms, and around 35 ms is usual.</li>
+<strong>Plain shell, no framework.</strong> Startup stays under 60 ms (<code>check.sh</code>), and around 35 ms is usual. The README's speed
+table comes from <code>.github/bench/run.sh</code> (zsh-bench, in Docker). The prompt GIFs
+(<code>docs/assets/demo-*.gif</code>) come from <code>.github/demo/render.sh</code>: the real prompt, recorded
+by VHS in Docker, only <code>glab</code> and a slow <code>git fetch</code> simulated. They stay in the README:
+the site's build takes PNG only, and a looping GIF has no stop control (RGAA 13.8).</li>
 <li>
 <strong>Linux and macOS, fully.</strong> No GNU-only flags, no <code>/proc</code> without a fallback. A
 zsh builtin (<code>zstat</code>, <code>$EPOCHREALTIME</code>, <code>:A</code>) is better than an <code>$OSTYPE</code> branch,

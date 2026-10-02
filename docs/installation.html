@@ -415,7 +415,9 @@ document.documentElement.dataset.motion = m || (matchMedia("(prefers-reduced-mot
 <div class="prose">
 <ul>
 <li><a href="#requirements">Requirements</a></li>
+<li><a href="#try-it-first">Try it first</a></li>
 <li><a href="#install">Install</a></li>
+<li><a href="#the-prompt-only">The prompt only</a></li>
 <li><a href="#macos-notes">macOS notes</a></li>
 <li><a href="#updating">Updating</a></li>
 <li><a href="#moving-to-another-machine">Moving to another machine</a></li>
@@ -490,9 +492,17 @@ document.documentElement.dataset.motion = m || (matchMedia("(prefers-reduced-mot
 <p>Icons use <a href="https://www.nerdfonts.com" rel="nofollow">Nerd Font</a> glyphs. Either use a Nerd Font
 in your terminal, or add <em>Symbols Nerd Font</em> as a fallback font. You can also set
 the icons you can't display to <code>''</code> (see <a href="prompt.html#icons">The prompt</a>).</p>
+<h2 id="try-it-first">Try it first</h2>
+<div class="highlight highlight-source-shell"><pre>git clone https://github.com/fmatsos/shellkit.git <span class="pl-k">~</span>/shellkit
+<span class="pl-k">~</span>/shellkit/zsh/try.sh               <span class="pl-c"><span class="pl-c">#</span> exit to leave</span>
+<span class="pl-k">~</span>/shellkit/zsh/try.sh -c <span class="pl-s"><span class="pl-pds">'</span>shkit doctor<span class="pl-pds">'</span></span></pre></div>
+<p><code>zsh/try.sh</code> starts a zsh on the repository's <code>zshrc</code> without installing anything.
+Its settings (<code>shkit set</code>…), history and caches go to a temporary directory,
+deleted when the shell exits. <code>~/.zshrc</code>, your history and <code>~/.config</code> are left
+alone, and the automatic update is off.</p>
 <h2 id="install">Install</h2>
 <p>Clone the repository anywhere and run the install script of each shell you use:</p>
-<div class="highlight highlight-source-shell"><pre>git clone git@github.com:fmatsos/shellkit.git <span class="pl-k">~</span>/shellkit
+<div class="highlight highlight-source-shell"><pre>git clone https://github.com/fmatsos/shellkit.git <span class="pl-k">~</span>/shellkit
 <span class="pl-k">~</span>/shellkit/zsh/install.sh    <span class="pl-c"><span class="pl-c">#</span> zsh: the default shell</span>
 <span class="pl-k">~</span>/shellkit/bash/install.sh   <span class="pl-c"><span class="pl-c">#</span> bash: the fallback (optional)</span>
 <span class="pl-c1">exec</span> zsh</pre></div>
@@ -514,6 +524,16 @@ creates a <code>~/.bash_profile</code> that sources it.</p>
 the tools above to refresh its completion.</p>
 <p>To make zsh your login shell:</p>
 <div class="highlight highlight-source-shell"><pre>chsh -s <span class="pl-s"><span class="pl-pds">"</span><span class="pl-s"><span class="pl-pds">$(</span>command -v zsh<span class="pl-pds">)</span></span><span class="pl-pds">"</span></span></pre></div>
+<h2 id="the-prompt-only">The prompt only</h2>
+<p>To keep your own <code>~/.zshrc</code> (options, plugins, aliases) and only take the prompt,
+skip <code>install.sh</code> and add this line to it, after <code>compinit</code> if you run it, and
+instead of any other prompt (Oh My Zsh theme, starship, powerlevel10k…):</p>
+<div class="highlight highlight-source-shell"><pre><span class="pl-c1">source</span> <span class="pl-k">~</span>/shellkit/zsh/prompt.zsh</pre></div>
+<p>You get the whole prompt, its blocks, themes, plugins and per-project settings, and
+<code>shkit</code>, which creates <code>~/.config/shkit/</code> on its first <code>shkit set</code>. The automatic
+update works the same. What stays out is what <code>zshrc</code> adds: its options, history,
+completion setup, aliases and the <a href="usage.html">shell features</a>. <code>shkit doctor</code>
+reports this mode as <code>prompt only</code>.</p>
 <h2 id="macos-notes">macOS notes</h2>
 <ul>
 <li>
@@ -529,7 +549,7 @@ without asking.</li>
 message and stops. Install bash 5 with Homebrew and use that one. The install
 scripts themselves run on 3.2.</li>
 <li>
-<strong>Locale</strong>: a terminal started from a GUI app may have no locale. <code>zshrc</code> then
+<strong>Locale</strong>: a terminal started from a GUI app may have no locale. The prompt then
 sets <code>LC_CTYPE</code> to UTF-8 so the icons display.</li>
 <li>
 <strong>Terminal.app</strong> keeps one history per tab by default. <code>zshenv</code> turns that off,
