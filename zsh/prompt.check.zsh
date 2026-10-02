@@ -125,6 +125,7 @@ mv $t/bin/notify-send $t/ns; rehash; nt 45 'sudo make' 3; e+=" / $(<$t/notified)
 SHKIT_FORMAT=$f0
 command mkdir $t/stale.lock; touch -t 202001010000 $t/stale.lock; _prompt_spawn $t/stale true; sleep 0.2
 [[ ! -d $t/stale.lock ]] && print "ok   a lock older than 2 min is forgotten" || { print "FAIL stale lock kept"; fail=1; }
+_prompt_spawn $t/race sleep 1; [[ -d $t/race.lock ]] && print "ok   a job's lock exists as soon as it is spawned (the prompt waits for it)" || { print "FAIL lock taken late: no ↻, no redraw"; fail=1; }
 
 render; check " · ✻ 1 agent · 1 busy"$'\n'"$ " "one info line, then a bare bold \$ (literal)"
 [[ $raw == *$'\e[38;5;33mmain'* ]] && print "ok   theme: color role from SHKIT_COLOR_*" || { print "FAIL theme color"; fail=1; }

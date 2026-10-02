@@ -26,6 +26,7 @@
 
 zmodload zsh/datetime zsh/system
 zmodload -F zsh/stat b:zstat   # zstat only: a plain load would shadow the stat binary
+zmodload -F zsh/files b:zf_mkdir   # mkdir without a fork; zf_: the mkdir command stays
 
 # No XDG_RUNTIME_DIR on macOS: its $TMPDIR is per-user too.
 typeset -g _prompt_cache=${XDG_RUNTIME_DIR:-${${TMPDIR:-/tmp}%/}/zsh-prompt-$UID}/zsh-prompt
@@ -107,11 +108,13 @@ function _prompt_write { # FILE DATA — atomic, so the prompt never reads half 
 }
 
 # _prompt_spawn FILE CMD... — run CMD detached, at most one per FILE (lock dir).
+# The lock is taken here, before the fork: the caller's `[[ -d FILE.lock ]]` right
+# after must see it, or the prompt neither shows ↻ nor redraws when the job ends.
 function _prompt_spawn {
   local file=$1; shift
   _prompt_locked $file && return 0
+  zf_mkdir $file.lock 2>/dev/null || return 0
   {
-    command mkdir $file.lock 2>/dev/null || exit
     trap "command rmdir ${(q)file}.lock 2>/dev/null" EXIT
     "$@"
   } </dev/null >/dev/null 2>&1 &!
