@@ -53,6 +53,23 @@ There's no framework (no Oh My Zsh, no Oh My Bash) and the first prompt shows in
 - **Secrets stay out**: machine-specific settings and tokens live in
   `~/.config/shkit/`, never in the repository.
 
+<details>
+<summary>More recordings: git states, a long and a failed command, <code>shkit</code> changing the prompt</summary>
+
+<p align="center">
+  <img src="docs/assets/demo-git.gif" alt="Recording: appending to a file grows the prompt's diff stat; a git rebase that conflicts shows rebase 2/2 and 1 conflict, and git rebase --abort clears it" width="100%">
+</p>
+
+<p align="center">
+  <img src="docs/assets/demo-commands.gif" alt="Recording: after sleep 4 the prompt shows 4s; after false it shows the failure and its exit code 1; after true both are gone" width="100%">
+</p>
+
+<p align="center">
+  <img src="docs/assets/demo-shkit.gif" alt="Recording: shkit set format and shkit set color_accent change the prompt at once; shkit project then shkit set -p format change it in this repository only, and cd ~ shows the global format again" width="100%">
+</p>
+
+</details>
+
 ## Quick start
 
 ```bash

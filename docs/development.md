@@ -32,8 +32,9 @@ Working on shellkit itself. The rules for contributors, human or agent, are in
 
 - **Plain shell, no framework.** Startup stays under 60 ms (`check.sh`), and around 35 ms is usual. The README's speed
   table comes from `.github/bench/run.sh` (zsh-bench, in Docker). The prompt GIFs
-  (`docs/assets/demo-*.gif`) from `.github/demo/render.sh`: the real prompt, recorded by
-  VHS in Docker, only `glab` and a slow `git fetch` simulated.
+  (`docs/assets/demo-*.gif`) come from `.github/demo/render.sh`: the real prompt, recorded
+  by VHS in Docker, only `glab` and a slow `git fetch` simulated. They stay in the README:
+  the site's build takes PNG only, and a looping GIF has no stop control (RGAA 13.8).
 - **Linux and macOS, fully.** No GNU-only flags, no `/proc` without a fallback. A
   zsh builtin (`zstat`, `$EPOCHREALTIME`, `:A`) is better than an `$OSTYPE` branch,
   because then Linux runs the Mac's code too. The install scripts must run on
