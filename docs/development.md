@@ -30,7 +30,8 @@ Working on shellkit itself. The rules for contributors, human or agent, are in
 
 ## Principles
 
-- **Plain shell, no framework.** Startup stays under 60 ms, and around 35 ms is usual.
+- **Plain shell, no framework.** Startup stays under 60 ms (`check.sh`), and around 35 ms is usual. The README's speed
+  table comes from `.github/bench/run.sh` (zsh-bench, in Docker).
 - **Linux and macOS, fully.** No GNU-only flags, no `/proc` without a fallback. A
   zsh builtin (`zstat`, `$EPOCHREALTIME`, `:A`) is better than an `$OSTYPE` branch,
   because then Linux runs the Mac's code too. The install scripts must run on

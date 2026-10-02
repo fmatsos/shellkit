@@ -11,7 +11,8 @@
 
 A plain zsh / bash setup for Linux and macOS, with an async, themeable prompt
 that keeps every fact on one line and never makes you wait for the network.
-There's no framework (no Oh My Zsh, no Oh My Bash) and zsh starts in about 35 ms.
+There's no framework (no Oh My Zsh, no Oh My Bash) and the first prompt shows in about
+40 ms ([measured](#speed)).
 
 <p align="center">
   <img src="docs/assets/prompt.png?v=3" alt="The shellkit prompt in a git repository: directory, branch, 1 commit ahead, 2 changed files with +15 −4 lines, merge request !482 with CI passed, and at the right end of the line 1 Claude agent and the 5 h / 7 d quota; below, the input line with only the $" width="100%">
@@ -75,6 +76,39 @@ shkit show                                 # what is set, where
 
 A [Nerd Font](https://www.nerdfonts.com) is recommended for the icons. Symbols
 Nerd Font is enough as a fallback font.
+
+## Speed
+
+Measured with [zsh-bench](https://github.com/romkatv/zsh-bench), which types into a
+real terminal and times what you see, in a git repository of 10,000 files. Lower is
+better. zsh-bench rates a *command lag* under 10 ms as impossible to tell from zero.
+
+**The prompt alone**, each in an otherwise empty `~/.zshrc` (no completion):
+
+| Prompt | First prompt | Command lag | Git info |
+|--------|-------------:|------------:|----------|
+| shellkit, [prompt only](docs/installation.md#the-prompt-only) | 17 ms | 10 ms | before the prompt shows |
+| [starship](https://starship.rs) | 36 ms | 34 ms | before the prompt shows |
+| [powerlevel10k](https://github.com/romkatv/powerlevel10k) | 1 ms¹ | 1.4 ms | from a background daemon (gitstatusd) |
+| [pure](https://github.com/sindresorhus/pure) | 16 ms | 1.0 ms | after the prompt, redrawn (async) |
+| zsh's `vcs_info`, branch only (reference) | 12 ms | 6 ms | branch only |
+
+**A whole setup** (options, history, completion, aliases):
+
+| Setup | First prompt | First command | Command lag |
+|-------|-------------:|--------------:|------------:|
+| shellkit | 38 ms | 38 ms | 11 ms |
+| [Oh My Zsh](https://ohmyz.sh), default theme | 41 ms | 43 ms | 2.9 ms² |
+| `compinit` alone (reference) | 13 ms | 14 ms | 0.02 ms |
+
+¹ Its *instant prompt* replays a cached prompt before zsh has loaded; the first command
+waits 18 ms. ² Oh My Zsh's default theme showed no git info in the benchmark's repository.
+
+Input lag (a key press to its character) stays under 1 ms for all of them. shellkit's
+networked data (fetch, merge request, CI) is never on that path: it runs in the
+background, and none of it ran here (the repository has no remote). Mean of 2 runs of 32
+iterations each, the ranking the same in both: Docker on Linux, Ubuntu 24.04, zsh 5.9,
+Intel Core Ultra 7 165U, 2026-10-02. To run it again: `.github/bench/run.sh`.
 
 ## Documentation
 
