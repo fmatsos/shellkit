@@ -295,7 +295,7 @@ function _prompt_seg_git {
   [[ -n $s ]] && segs+=${s#  }
   if [[ -n $op ]]; then
     s="${_c_warn}${op}${_c_reset}"
-    (( conflicts )) && s+=" ${_c_fail}${_i_conflict}${conflicts} conflit${${conflicts:#1}:+s}${_c_reset}"
+    (( conflicts )) && s+=" ${_c_fail}${_i_conflict}${conflicts} conflict${${conflicts:#1}:+s}${_c_reset}"
     segs+=$s
   fi
 
