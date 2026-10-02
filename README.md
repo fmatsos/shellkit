@@ -140,7 +140,7 @@ Also on the website: <https://fmatsos.github.io/shellkit/docs/>.
 | Guide | What's in it |
 |-------|--------------|
 | [Installation](docs/installation.md) | requirements, Linux and macOS, bash fallback, automatic updates, migrating |
-| [Usage](docs/usage.md) | the shell features, aliases and scripts |
+| [Usage](docs/usage.md) | the shell features and aliases |
 | [Configuration](docs/configuration.md) | `~/.config/shkit/`, settings layers, per-project settings, secrets |
 | [`shkit` reference](docs/shkit.md) | every command and option |
 | [The prompt](docs/prompt.md) | built-in blocks, format syntax, colors, icons, behaviour |

@@ -22,7 +22,6 @@ Working on shellkit itself. The rules for contributors, human or agent, are in
 | `bash/bashrc`, `bash/completion.sh` | the bash fallback |
 | `shell/aliases.sh` | aliases and functions shared by both shells |
 | `shell/install-local.sh` | creates and migrates `~/.config/shkit/` |
-| `bin/` | standalone scripts |
 | `docs/` | this documentation |
 | `.github/workflows/` | `check.yml` (CI) and `release.yml` (releases) |
 | `.github/smoke.zsh`, `.github/smoke.bash` | the installed shells, tested end to end in CI |

@@ -9,7 +9,6 @@ options and aliases, but with a minimal prompt.
 - [Options](#options)
 - [Completion](#completion)
 - [Aliases and functions](#aliases-and-functions)
-- [Scripts](#scripts)
 - [The bash fallback](#the-bash-fallback)
 
 ## Jump to a directory by its name
@@ -85,9 +84,7 @@ Defined in `shell/aliases.sh`, the same in bash and zsh.
 | `wget` | resumes (`-c`) |
 | `gs` | `git switch` |
 | `gpf` | `git push --force-with-lease` |
-| `gclean` | `git-cleanup --verbose` |
 | `dstop` | stops every running Docker container |
-| `rmc` / `rml` | in a Symfony project, delete `var/cache` / `var/log` (uses `sudo`) |
 
 Aliases and functions for one machine only go in `~/.config/shkit/aliases.sh`,
 which both shells source right after `shell/aliases.sh`. It is never committed.
@@ -96,16 +93,6 @@ which both shells source right after `shell/aliases.sh`. It is never committed.
 > Because `cp`, `mv` and `mkdir` are aliases, a script *sourced* into the shell
 > should call `command mkdir` and the like. Scripts that are *executed* (with a
 > shebang) don't see aliases.
-
-## Scripts
-
-`bin/` holds standalone scripts. The install scripts don't install them: put
-`bin/` in your `PATH`, or link the ones you want into `~/.local/bin` (already in
-`PATH`).
-
-| Script | Does |
-|--------|------|
-| `usephp 8.2` | points `~/.bin/php` at PHP 8.2 (Debian's `php8.2` or Homebrew's `php@8.2`), falling back to the default `php` |
 
 ## The bash fallback
 

@@ -67,7 +67,6 @@ Tested on one OS only: say so, and list what to check on the other.
 | `shell/install-local.sh` | creates `~/.config/shkit/` (the files outside the repo), migrates the old `~/.config/shell/` and `~/.*.local` |
 | `shell/aliases.sh` | aliases and functions shared by bash and zsh — keep it portable |
 | `bash/` | fallback bash config (`bashrc` with a minimal prompt, `completion.sh`) |
-| `bin/` | scripts, installed in `~/.bin` |
 | `docs/` | user documentation (GFM), linked from `README.md` |
 | `.github/` | `workflows/check.yml` (CI), `workflows/release.yml` (tag `vX.Y.Z` = release), `workflows/pages.yml` (`docs/` → the website on `gh-pages`), `smoke.*`, `bench/` (the README's speed table), `demo/` (the prompt GIFs, VHS in Docker) |
 | `.claude/skills/` | agent skills: `config-commit` (checks + commit, `check.sh`), `prompt-theme`, `prompt-plugin` (writing a plugin), `shell-config`, `website` (the `gh-pages` site), `visuals` (images and sprites, made with Codex) |

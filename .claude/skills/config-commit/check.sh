@@ -10,7 +10,6 @@ ko() { echo "FAIL $*"; fail=1; }
 
 for f in "$C"/zsh/zshrc "$C"/zsh/zshenv "$C"/zsh/*.zsh "$C"/zsh/plugin/example/*/*.zsh "$C"/.github/*.zsh; do zsh -n "$f" || ko "zsh syntax: ${f#$C/}"; done
 for f in "$C"/bash/bashrc "$C"/bash/*.sh "$C"/shell/*.sh "$C"/zsh/install.sh "$C"/.github/*.bash; do bash -n "$f" || ko "bash syntax: ${f#$C/}"; done
-for f in "$C"/bin/*; do case $(head -1 "$f") in *zsh*) zsh -n "$f" ;; *bash*) bash -n "$f" ;; *) sh -n "$f" ;; esac || ko "syntax: ${f#$C/}"; done
 
 out=$(zsh "$C/zsh/prompt.check.zsh" 2>&1) || ko "prompt self-check:"$'\n'"$(grep -v '^ok' <<<"$out")"
 echo "prompt self-check: $(grep -c '^ok' <<<"$out") ok"

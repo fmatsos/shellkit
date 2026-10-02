@@ -13,7 +13,7 @@ if (( BASH_VERSINFO[0] * 100 + BASH_VERSINFO[1] < 501 )); then
 fi
 
 _bashrc_dir=$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")
-SHELL_LOCAL_DIR=${XDG_CONFIG_HOME:-$HOME/.config}/shkit
+SHELL_LOCAL_DIR=${SHELL_LOCAL_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/shkit}
 [[ -d ${SHELL_LOCAL_DIR%/*}/shell && ! -e $SHELL_LOCAL_DIR ]] &&   # renamed with shellkit
   echo "shellkit: ~/.config/shell not migrated, run shell/install-local.sh" >&2
 
