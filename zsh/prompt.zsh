@@ -715,12 +715,12 @@ function _prompt_watch { # FILE...
     for f; do [[ -d $f.lock ]] && left=1; done
     (( left )) || break
     if [[ $SHKIT_TITLE_SPINNER == true && -w $TTY ]]; then
-      read -r running title <$state 2>/dev/null
+      { read -r running title <$state } 2>/dev/null
       [[ $running == 0 ]] && print -n $'\e]0;'"$frames[i % $#frames + 1] $title · sync"$'\a' >$TTY
     fi
     sleep 0.1
   done
-  read -r running title <$state 2>/dev/null
+  { read -r running title <$state } 2>/dev/null
   [[ $running == 0 && -w $TTY ]] && print -n $'\e]0;'"$title"$'\a' >$TTY
   print done
 }
