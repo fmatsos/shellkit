@@ -135,6 +135,22 @@ SHKIT_FORMAT='[ {docker} | {dir} | {docker} ] %'; render; [[ $out == "[ $t/repo 
 SHKIT_FORMAT='no block'; render; [[ $out == "no block"$'\n'* ]] && print "ok   format: literal only" || { print "FAIL literal: $out"; fail=1; }
 SHKIT_FORMAT='{mr} · {dir}'; SHKIT_SHOW_MR=true; render; SHKIT_SHOW_MR=false; [[ $out == "$t/repo"$'\n'* ]] && print "ok   format: {mr} without {git} shows nothing" || { print "FAIL mr alone: $out"; fail=1; }
 SHKIT_FORMAT='{hello}'; render; [[ $out == "☺ hi %$USER"$'\n'* && $raw == *$'\e[38;5;42m☺'* ]] && print "ok   local block from prompt.d/: own color + icon, text escaped" || { print "FAIL local block: $out"; fail=1; }
+# {dir.short}: from the repository's root, ~ for $HOME, else in full
+command mkdir -p $t/repo/s/d $HOME/p; SHKIT_FORMAT='{dir.short}'; e=
+for d in $t/repo/s/d $t/repo $HOME/p $HOME $t; do cd $d; render; e+="${out%%$'\n'*}|"; done; cd $t/repo
+[[ $e == "repo/s/d|repo|~/p|~|$t|" ]] && print "ok   dir.short: repo/s/d, ~/p, else in full" || { print "FAIL dir.short: $e"; fail=1; }
+# {git.untracked}: counted by a job (a directory once), redrawn without ↻
+print x >u1; command mkdir -p s/n && print y >s/n/a && print z >s/n/b
+SHKIT_FORMAT='{git} · {git.untracked}'; _prompt_key untracked$t/repo; uf=$REPLY
+_prompt_render 1; e="$_prompt_pending"; for (( i = 0; i < 40; i++ )); do [[ -d $uf.lock ]] || break; sleep 0.05; done
+[[ $e == "0 $uf" && $PROMPT != *↻* ]] && render && [[ ${out%%$'\n'*} == *main*" · ?2" ]] &&
+  print "ok   git.untracked: counted in the background (s/ once), watched without ↻" || { print "FAIL git.untracked: $e / $out"; fail=1; }
+command rm -r u1 s; _prompt_job_untracked $t/repo $uf; render; [[ $out != *'?'* ]] && print "ok   git.untracked: none, no block" || { print "FAIL git.untracked none: $out"; fail=1; }
+# SHKIT_TRANSIENT: a line run, the prompt shrinks to its $ line
+function zle { : }; SHKIT_TRANSIENT=true; _prompt_render; e=${PROMPT##*$'\n'}; _prompt_transient
+[[ $PROMPT == "$e" && $PROMPT == *'$'* ]] && { SHKIT_TRANSIENT=false; _prompt_render; _prompt_transient; [[ $PROMPT == *$'\n'* ]] } &&
+  print "ok   transient: \$ line only, off by default" || { print "FAIL transient: $PROMPT"; fail=1; }
+unfunction zle; SHKIT_TRANSIENT=false
 # Per project: shkit writes the files, a project file overrides the theme below its dir.
 shkit set format {dir}; command mkdir -p $t/repo/sub/deep $t/repo2; cfg=$XDG_CONFIG_HOME/shkit
 shkit project $t/repo/sub >/dev/null; cd sub; shkit set -p format '{dir} P'; shkit set -p color_mute 35
@@ -194,10 +210,18 @@ rm -f $t/quota; _prompt_render; [[ -z $_prompt_right ]] && print "ok   quota: no
 # Async: a pending refresh shows ↻ and is watched; the watcher answers once its lock is gone.
 _prompt_key docker; lock=$REPLY.lock; mkdir $lock
 SHKIT_FORMAT+=' · {docker}'; _prompt_render; SHKIT_FORMAT=$f; out=${${(%)PROMPT}//$'\e['[0-9;]#m/}
-[[ $out == *'%↻'* && ${_prompt_pending[1]}.lock == $lock ]] && print "ok   pending refresh: ↻ shown, lock watched" || { print "FAIL pending: $_prompt_pending"; fail=1; }
+[[ $out == *'%↻'* && ${_prompt_pending[2]}.lock == $lock ]] && print "ok   pending refresh: ↻ shown, lock watched" || { print "FAIL pending: $_prompt_pending"; fail=1; }
 ( sleep 0.3; rmdir $lock ) &
 integer ms; s=$EPOCHREALTIME; ans=$(_prompt_watch $_prompt_pending); d=$(( EPOCHREALTIME - s )); ms=$(( d * 1000 ))
 [[ $ans == done ]] && (( d < 1.5 )) && print "ok   watcher wakes zle right after the job ($ms ms)" || { print "FAIL watcher: '$ans' after $d s"; fail=1; }
+e=
+for n in 0 1; do   # the title at each turn (a write truncates the file): sleep logs it
+  mkdir $lock; ( sleep 0.3; rmdir $lock ) &
+  ( setopt clobber; TTY=$t/tty SHKIT_TITLE_SPINNER=true; : >$TTY; : >$t/titles; print -r -- "0 t" >$_prompt_cache/state.$$
+    function sleep { cat $TTY >>$t/titles; command sleep $1 }; _prompt_watch $n ${lock%.lock} >/dev/null )
+  e+="$(<$t/titles)|"
+done
+[[ $e == '|'*'· sync'* ]] && print "ok   watcher: a quiet lock ({git.untracked}) doesn't spin the title, others do" || { print "FAIL spinner: $e"; fail=1; }
 # Plugins: a local repository stands for the remote (no network).
 pr=$t/plug; git init -q -b main $pr; git -C $pr config user.email t@t; git -C $pr config user.name t; command mkdir $pr/blocks $pr/themes; cd $t/repo2
 print -r -- ': ${SHKIT_COLOR_PL:=38;5;99}; function _prompt_seg_pl { segs+="${_c_pl}plug1${_c_reset}"; }' >|$pr/blocks/pl.zsh

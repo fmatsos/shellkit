@@ -63,7 +63,8 @@ shkit set format '{dir} · {git} · {php}'
 6. **No secrets in the file.** Read a variable (`$GITLAB_TOKEN`) that the user sets
    in `secrets.sh`.
 
-Block names are lowercase letters, digits and `_`.
+Block names are lowercase letters, digits and `_`. A dot is kept for the built-ins'
+variants (`{dir.short}`, `{git.untracked}`).
 
 ## Colors and icons
 

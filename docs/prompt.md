@@ -29,11 +29,13 @@ Anything that needs the network or a slow command is read from a cache under
 
 - `git fetch`, for a true behind count;
 - the merge / pull request, its CI and its review, through `glab` / `gh`;
-- `docker ps`.
+- `docker ps`;
+- the untracked files of `{git.untracked}`, counted again at each new prompt.
 
 When a cache entry is older than its TTL, a background job refreshes it and a
 muted `↻` shows. When the job finishes, the prompt redraws in place, without
-pressing Enter. Every job has a timeout, and only one runs per cache entry.
+pressing Enter. Every job has a timeout, and only one runs per cache entry. The
+untracked count shows no `↻`: it would show at every prompt.
 
 ## Built-in blocks
 
@@ -41,7 +43,9 @@ pressing Enter. Every job has a timeout, and only one runs per cache entry.
 |-------|-------|--------|
 | `{host}` | `user@host`, only over SSH or as root (root in `FAIL`) | local |
 | `{dir}` | the current directory, in full | local |
+| `{dir.short}` | the current directory from its repository's root (`shop/src/Cart`), else with `~` for your home | local |
 | `{git}` | branch (`wt` in a linked worktree), ahead ⇡ / behind ⇣, changed files with `+added −removed` lines, an operation in progress (`rebase 2/5`, `merge`, `cherry-pick`, `revert`, `bisect`) with its conflicts | local, plus a background `git fetch` |
+| `{git.untracked}` | how many files git doesn't track, `?3` (an untracked directory counts once, as in `git status`) | a background count at each new prompt |
 | `{ticket}` | the ticket id in the branch name (`feature/SHOP-42_cart` → `SHOP-42`), a link to your tracker. Only once `SHKIT_TICKET_URL` is set | local. Needs `{git}` before it |
 | `{mr}` | the open or merged merge / pull request of the branch: `!123` (GitLab) or `#123` (GitHub), a link in terminals that support it, `draft` or `merged`, and the CI status (`✓` passed, `✗` failed, `●` running, `○` skipped) | `glab` (GitLab) or `gh` (GitHub), cached. Needs `{git}` before it |
 | `{review}` | the open MR / PR's approvals and unresolved threads | `glab` and `jq` (GitLab) or `gh` (GitHub), cached like `{mr}`. Needs `{git}` before it |
@@ -142,7 +146,7 @@ Every icon is a variable. Set one to `''` to drop it.
 | `SHKIT_ICON_PROMPT` | `$` | | `SHKIT_SPINNER` | braille frames (an array) |
 | `SHKIT_ICON_TICKET` | Nerd Font task list | | `SHKIT_ICON_APPROVED` / `_THREADS` | Nerd Font thumbs up / comments |
 | `SHKIT_ICON_DURATION` | Nerd Font clock | | `SHKIT_ICON_STATUS` | `✗` |
-| `SHKIT_ICON_HOST` | none | | | |
+| `SHKIT_ICON_HOST` | none | | `SHKIT_ICON_UNTRACKED` | `?` |
 
 ```zsh
 shkit set icon_branch $'\ue0a0'     # a branch glyph before the branch name
@@ -161,6 +165,7 @@ These are best set in `settings.sh`, or with `shkit set`:
 | `SHKIT_SHOW_MR` | `true` | query `glab` / `gh` for `{mr}` |
 | `SHKIT_AUTO_FETCH` | `true` | background `git fetch` for an up-to-date behind count |
 | `SHKIT_TITLE_SPINNER` | `true` | animate the tab title while a refresh runs |
+| `SHKIT_TRANSIENT` | `false` | once a line is run, its prompt shrinks to the `$` line: the scrollback keeps your commands without an info line each. A line abandoned with <kbd>Ctrl</kbd>+<kbd>C</kbd> keeps its full prompt |
 | `SHKIT_FETCH_TTL` | `300` | seconds between two fetches of a repository |
 | `SHKIT_MR_TTL` | `120` | seconds between two MR / PR lookups (20 s while CI runs) |
 | `SHKIT_DOCKER_TTL` | `30` | seconds between two `docker ps` |

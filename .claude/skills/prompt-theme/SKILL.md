@@ -161,7 +161,7 @@ function _prompt_seg_php {
 - Contract: append to `segs` (several strings = joined with `SHKIT_SEPARATOR`);
   `$_c_<role>` / `$_i_<name>` exist for every `SHKIT_COLOR_*` / `SHKIT_ICON_*`
   (an icon gets no trailing space); `_prompt_esc` on every dynamic text; the name
-  matches `[a-z0-9_]+`.
+  matches `[a-z0-9_]+` (a dot: kept for the built-ins' variants, `{dir.short}`).
 - Same name as a built-in (`_prompt_seg_docker`) = overrides it.
 - The file is sourced inside a function: a global it keeps needs `typeset -g`
   (`typeset -A x` alone would be a local, gone once loaded). It is sourced again after

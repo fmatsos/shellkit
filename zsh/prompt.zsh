@@ -44,6 +44,7 @@ function _prompt_defaults {
   : ${SHKIT_QUOTA_RESET_AT:=80}   # from this %, the quota also shows when it resets
   : ${SHKIT_AUTO_FETCH:=true}     # background `git fetch`, for a true ⇣N
   : ${SHKIT_TITLE_SPINNER:=true}  # spinner in the tab title while a refresh runs
+  : ${SHKIT_TRANSIENT:=false}     # a line run: its prompt shrinks to the $ line
   : ${SHKIT_FETCH_TTL:=300}
   : ${SHKIT_MR_TTL:=120}          # 20 s while a pipeline is running
   : ${SHKIT_DOCKER_TTL:=30}
@@ -61,7 +62,8 @@ function _prompt_defaults {
       fg bg psql mysql sqlite3 lazygit tig journalctl claude codex)
 
   # Layout: {block} placeholders and literal text (muted). Blocks: host (SSH / root
-  # only), dir, git, ticket, mr, review (both need {git} before them), stack, docker
+  # only), dir, dir.short (from the repository's root), git, git.untracked, ticket,
+  # mr, review (these three need {git} before them), stack, docker
   # (anomalies only), duration, status (after a failure), agents (Claude sessions),
   # quota (Claude 5h / 7d). Text between two blocks is a separator: shown only
   # when a block on each side shows (the one before the next shown block wins).
@@ -87,6 +89,7 @@ function _prompt_defaults {
   : ${SHKIT_ICON_BEHIND=⇣}  ${SHKIT_ICON_AHEAD=⇡}  ${SHKIT_ICON_DIRTY=$'\uf044'}
   : ${SHKIT_ICON_ADDED=+}   ${SHKIT_ICON_REMOVED=−}  ${SHKIT_ICON_CONFLICT=✗}
   : ${SHKIT_ICON_CI_OK=✓}   ${SHKIT_ICON_CI_FAIL=✗}  ${SHKIT_ICON_CI_SKIP=○}  ${SHKIT_ICON_CI_RUN=●}
+  : ${SHKIT_ICON_UNTRACKED=?}
   : ${SHKIT_ICON_REFRESH=↻}  ${SHKIT_ICON_PROMPT='$'}  ${SHKIT_ICON_STATUS=✗}  ${SHKIT_ICON_HOST=}
   : ${SHKIT_ICON_TICKET=$''}  ${SHKIT_ICON_APPROVED=$''}  ${SHKIT_ICON_THREADS=$''}
   : ${SHKIT_ICON_DURATION=$''}
@@ -235,6 +238,14 @@ function _prompt_job_stack { # PROJECT FILE
   _prompt_write $2 $data
 }
 
+# Files git doesn't track (an untracked directory counts once, as in `git status`).
+function _prompt_job_untracked { # TOPLEVEL FILE
+  local -a f
+  f=(${(f)"$(GIT_OPTIONAL_LOCKS=0 _prompt_timeout 10 git -C $1 ls-files --others --exclude-standard \
+    --directory --no-empty-directory 2>/dev/null)"})
+  _prompt_write $2 $#f
+}
+
 #------------------------------------------------------------------------------
 # Segments (synchronous, local): _prompt_seg_<name> appends its text to
 # `segs`, and to `pending` the cache files whose refresh is in flight (watched
@@ -310,6 +321,30 @@ function _prompt_seg_git {
   fi
 
   [[ $head != ${oid[1,8]} && -z $op ]] && _git=($common $head $top)   # for {mr}
+}
+
+# The work tree holding $PWD: the nearest directory with a .git, a file in a linked
+# worktree, else a dir with a HEAD (a stray empty .git is no repository). No fork.
+function _prompt_top { # -> REPLY, or '' (return 1)
+  REPLY=$PWD
+  until [[ -f $REPLY/.git || -f $REPLY/.git/HEAD ]]; do
+    [[ $REPLY == / ]] && { REPLY=; return 1 }
+    REPLY=${REPLY:h}
+  done
+}
+
+# Untracked files, counted in the background: `git status` with them is 114 ms on a
+# 35k-file repository, against 18 ms without (see {git}'s -uno).
+function _prompt_seg_git.untracked {
+  _prompt_top || return 0
+  local top=$REPLY file
+  _prompt_key untracked$top; file=$REPLY
+  _prompt_read $file
+  # ponytail: counted again at each new prompt (one job at a time, a redraw doesn't
+  # spawn): files come and go with any command. A TTL if that's too busy on a huge repo.
+  (( SPAWN )) && _prompt_spawn $file _prompt_job_untracked $top $file
+  [[ -d $file.lock ]] && quiet+=$file   # redrawn when counted, but no ↻: it would show at every prompt
+  [[ $_data == <-> ]] && (( _data )) && segs+="${_c_warn}${_i_untracked}${_data}${_c_reset}"
 }
 
 # MR/PR of the branch {git} found (_git, local to _prompt_render), from the cache.
@@ -451,6 +486,16 @@ typeset -gi _prompt_elapsed=0   # seconds the last command took; 0 after an empt
 
 function _prompt_seg_dir {
   _prompt_esc $PWD
+  segs+="${_c_mute}${_i_dir}${_c_reset}${_c_primary}${REPLY}${_c_reset}"
+}
+
+# {dir.short}: in a repository, from its root (shop/src/Cart); elsewhere, ~ for $HOME.
+function _prompt_seg_dir.short {
+  local d=$PWD
+  if _prompt_top && [[ $REPLY != $HOME ]]; then d=${REPLY:t}${PWD#$REPLY}
+  elif [[ $PWD == $HOME || $PWD == $HOME/* ]]; then d=\~${PWD#$HOME}
+  fi
+  _prompt_esc $d
   segs+="${_c_mute}${_i_dir}${_c_reset}${_c_primary}${REPLY}${_c_reset}"
 }
 
@@ -647,7 +692,7 @@ function _prompt_compile { # SIDE FORMAT
   _prompt_fmt_src[$1]=$2
   local f=$2 t
   local -a n=() tx=()
-  while [[ $f =~ '\{([a-z0-9_]+)\}' ]]; do
+  while [[ $f =~ '\{([a-z0-9_.]+)\}' ]]; do   # a dot: a built-in's variant ({dir.short})
     tx+=${f[1,MBEGIN-1]}; n+=$match[1]; f=${f[MEND+1,-1]}
   done
   tx+=$f
@@ -684,7 +729,7 @@ typeset -g _prompt_right=   # the right part, as rendered (shown or not)
 function _prompt_render { # [SPAWN] -> PROMPT, _prompt_right, _prompt_pending
   local SPAWN=${1:-0} _ts _data
   _prompt_project_switch
-  local -a pending=() _git=()
+  local -a pending=() quiet=() _git=()   # quiet: watched for the redraw, without ↻
   _prompt_esc $SHKIT_SEPARATOR
   local sep="${_c_mute}${REPLY}${_c_reset}"
   _prompt_compile l $SHKIT_FORMAT; _prompt_compile r $SHKIT_RIGHT_FORMAT
@@ -701,20 +746,20 @@ function _prompt_render { # [SPAWN] -> PROMPT, _prompt_right, _prompt_pending
   local chevron=$_c_primary
   (( _prompt_status )) && chevron=$'%{\e[1m%}'$_c_fail   # $ stays bold, like PRIMARY
   PROMPT="${l1}"$'\n'"${chevron}${_i_prompt}${_c_reset} "
-  typeset -ga _prompt_pending=($pending)
+  typeset -ga _prompt_pending=($#pending $pending $quiet)   # [1]: how many spin the title
 }
 
 # The watcher waits for the pending refreshes (each is a lock dir that its job
 # removes), spinning the tab title while the shell sits at its prompt, then
 # prints one line: zle wakes up (zle -F) and redraws the prompt in place.
-function _prompt_watch { # FILE...
-  local frames=($SHKIT_SPINNER) i=0 state running title f left
+function _prompt_watch { # SPINNING FILE... — only the first SPINNING files spin the title
+  local frames=($SHKIT_SPINNER) i=0 j n=$1 state running title left spin; shift
   state=$_prompt_cache/state.$$
   for (( ; i < 200; i++ )); do   # 20 s at most
-    left=0
-    for f; do [[ -d $f.lock ]] && left=1; done
+    left=0 spin=0
+    for (( j = 1; j <= $#; j++ )); do [[ -d $@[j].lock ]] && (( left = 1, spin |= j <= n )); done
     (( left )) || break
-    if [[ $SHKIT_TITLE_SPINNER == true && -w $TTY ]]; then
+    if (( spin )) && [[ $SHKIT_TITLE_SPINNER == true && -w $TTY ]]; then
       { read -r running title <$state } 2>/dev/null
       [[ $running == 0 ]] && print -n $'\e]0;'"$frames[i % $#frames + 1] $title · sync"$'\a' >$TTY
     fi
@@ -752,7 +797,7 @@ function _prompt_precmd {
     zle -F $_prompt_fd 2>/dev/null; exec {_prompt_fd}<&-; _prompt_fd=
   fi
   _prompt_render 1
-  if (( ${#_prompt_pending} )); then
+  if (( ${#_prompt_pending} > 1 )); then
     exec {_prompt_fd}< <(_prompt_watch $_prompt_pending)
     zle -F $_prompt_fd _prompt_async_done
   fi
@@ -765,10 +810,20 @@ function _prompt_preexec { # TYPED EXPANDED FULL
 }
 function _prompt_zshexit { command rm -f $_prompt_cache/state.$$; }
 
+# SHKIT_TRANSIENT=true: a line run, its prompt shrinks to the $ line, so the scrollback
+# keeps the commands without an info line each. The next prompt shows it in full.
+function _prompt_transient {
+  [[ $SHKIT_TRANSIENT == true ]] || return 0
+  PROMPT=${PROMPT##*$'\n'}
+  zle reset-prompt
+}
+
 autoload -Uz add-zsh-hook
 add-zsh-hook precmd _prompt_precmd
 add-zsh-hook preexec _prompt_preexec
 add-zsh-hook zshexit _prompt_zshexit
+autoload -Uz add-zle-hook-widget
+add-zle-hook-widget line-finish _prompt_transient
 
 function _prompt_projects_load { # projects/*.zsh -> _prompt_projects (dir -> file)
   local f d
