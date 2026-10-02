@@ -33,7 +33,7 @@ jobs:
       - name: zsh, prompt only (prompt.zsh in your own zshrc) and tried (zsh/try.sh)
         run: |
           export h=$(mktemp -d); printf 'source %s/zsh/prompt.zsh\n' "$PWD" >"$h/.zshrc"
-          HOME=$h env -u LC_ALL -u LANG -u LC_CTYPE zsh -ic 'cd $h; _prompt_precmd; [[ ${(%)PROMPT} == *${h:t}* ]] || { print -r -- "no prompt: ${(%)PROMPT}"; exit 1 }
+          HOME=$h env -u LC_ALL -u LANG -u LC_CTYPE -u XDG_CONFIG_HOME zsh -ic 'cd $h; _prompt_precmd; [[ ${(%)PROMPT} == *${h:t}* ]] || { print -r -- "no prompt: ${(%)PROMPT}"; exit 1 }
             shkit set separator x && [[ -r ~/.config/shkit/theme.zsh ]] || { print "shkit set: no theme.zsh"; exit 1 }' </dev/null
           export h=$(mktemp -d)
           HOME=$h zsh/try.sh -c 'shkit set separator x && [[ -r $SHELL_LOCAL_DIR/theme.zsh ]] || { print "try: shkit set failed"; exit 1 }
