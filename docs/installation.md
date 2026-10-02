@@ -1,7 +1,9 @@
 # Installation
 
 - [Requirements](#requirements)
+- [Try it first](#try-it-first)
 - [Install](#install)
+- [The prompt only](#the-prompt-only)
 - [macOS notes](#macos-notes)
 - [Updating](#updating)
 - [Moving to another machine](#moving-to-another-machine)
@@ -27,12 +29,25 @@ Icons use [Nerd Font](https://www.nerdfonts.com) glyphs. Either use a Nerd Font
 in your terminal, or add *Symbols Nerd Font* as a fallback font. You can also set
 the icons you can't display to `''` (see [The prompt](prompt.md#icons)).
 
+## Try it first
+
+```bash
+git clone https://github.com/fmatsos/shellkit.git ~/shellkit
+~/shellkit/zsh/try.sh               # exit to leave
+~/shellkit/zsh/try.sh -c 'shkit doctor'
+```
+
+`zsh/try.sh` starts a zsh on the repository's `zshrc` without installing anything.
+Its settings (`shkit set`…), history and caches go to a temporary directory,
+deleted when the shell exits. `~/.zshrc`, your history and `~/.config` are left
+alone, and the automatic update is off.
+
 ## Install
 
 Clone the repository anywhere and run the install script of each shell you use:
 
 ```bash
-git clone git@github.com:fmatsos/shellkit.git ~/shellkit
+git clone https://github.com/fmatsos/shellkit.git ~/shellkit
 ~/shellkit/zsh/install.sh    # zsh: the default shell
 ~/shellkit/bash/install.sh   # bash: the fallback (optional)
 exec zsh
@@ -62,6 +77,22 @@ To make zsh your login shell:
 ```bash
 chsh -s "$(command -v zsh)"
 ```
+
+## The prompt only
+
+To keep your own `~/.zshrc` (options, plugins, aliases) and only take the prompt,
+skip `install.sh` and add this line to it, after `compinit` if you run it, and
+instead of any other prompt (Oh My Zsh theme, starship, powerlevel10k…):
+
+```zsh
+source ~/shellkit/zsh/prompt.zsh
+```
+
+You get the whole prompt, its blocks, themes, plugins and per-project settings, and
+`shkit`, which creates `~/.config/shkit/` on its first `shkit set`. The automatic
+update works the same. What stays out is what `zshrc` adds: its options, history,
+completion setup, aliases and the [shell features](usage.md). `shkit doctor`
+reports this mode as `prompt only`.
 
 ## macOS notes
 

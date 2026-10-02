@@ -105,6 +105,7 @@ function _shkit_write { # FILE NAME [LINE] — NAME's line replaced (or appended
   elif (( i <= $#lines )); then lines[i]=$l
   else lines+=($l)
   fi
+  [[ -d ${f:h} ]] || command mkdir -p -m 700 ${f:h} || return   # prompt only: no install-local.sh ran
   print -rl -- "${lines[@]}" >| $f
 }
 
@@ -329,7 +330,7 @@ function _shkit_doctor {
   else _shkit_say warn "no notify-send: a long command only rings the bell"; fi
 
   [[ -d ${d%/*}/shell ]] && _shkit_say warn "${${d%/*}/#$HOME/~}/shell: not migrated (shell/install-local.sh)"
-  if [[ ! -d $d ]]; then _shkit_say FAIL "${d/#$HOME/~}: missing (shell/install-local.sh)"
+  if [[ ! -d $d ]]; then _shkit_say -- "${d/#$HOME/~}: not created yet (shkit set creates it)"
   else
     zstat -A m -o +mode $d
     if (( ! (8#${m[1]: -3} & 8#077) )); then _shkit_say ok "${d/#$HOME/~} (700)"; else _shkit_say warn "${d/#$HOME/~}: chmod 700 (is ${m[1]: -3})"; fi
@@ -347,7 +348,10 @@ function _shkit_doctor {
   m=($old)
   (( $#m )) && _shkit_say warn "shellkit 1.0 names (PROMPT_*) in ${(j:, :)${m:t}}: still read; shell/install-local.sh renames them"
   f=${ZDOTDIR:-$HOME}/.zshrc
-  [[ ${f:A} == $r/zsh/zshrc ]] || _shkit_say warn "${f/#$HOME/~} doesn't link to $r/zsh/zshrc (zsh/install.sh)"
+  if [[ ${f:A} == $r/zsh/zshrc ]]; then :
+  elif [[ -n $SHKIT_TRY ]]; then _shkit_say -- "trying shellkit (zsh/try.sh): nothing is kept"
+  elif (( $+functions[_zshrc_jump] )); then _shkit_say warn "${f/#$HOME/~} doesn't link to $r/zsh/zshrc (zsh/install.sh)"
+  else _shkit_say -- "prompt only: ${f/#$HOME/~} is your own and sources prompt.zsh"; fi
   [[ -w $_prompt_cache ]] || _shkit_say FAIL "$_prompt_cache: not writable, the prompt can't cache"
 
   v=$(git -C $r describe --tags --always 2>/dev/null)

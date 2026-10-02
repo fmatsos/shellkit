@@ -50,9 +50,17 @@ There's no framework (no Oh My Zsh, no Oh My Bash) and zsh starts in about 35 ms
 ## Quick start
 
 ```bash
-git clone git@github.com:fmatsos/shellkit.git ~/shellkit
+git clone https://github.com/fmatsos/shellkit.git ~/shellkit
+~/shellkit/zsh/try.sh          # try it first: nothing in ~ is touched, nothing is kept
 ~/shellkit/zsh/install.sh      # links ~/.zshrc and ~/.zshenv, creates ~/.config/shkit
 exec zsh
+```
+
+Only want the prompt? Keep your own `~/.zshrc` and add one line to it, instead of
+running `install.sh`:
+
+```zsh
+source ~/shellkit/zsh/prompt.zsh   # the prompt and shkit, nothing else
 ```
 
 Then shape the prompt:

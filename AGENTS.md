@@ -60,7 +60,7 @@ Tested on one OS only: say so, and list what to check on the other.
 
 | Path | Role |
 |------|------|
-| `zsh/zshrc`, `zsh/zshenv` | default shell, symlinked by `zsh/install.sh` |
+| `zsh/zshrc`, `zsh/zshenv` | default shell, symlinked by `zsh/install.sh`; `zsh/try.sh` runs them without installing; `prompt.zsh` alone = prompt only |
 | `zsh/prompt.zsh` | the prompt (async redraw); self-check: `zsh zsh/prompt.check.zsh` |
 | `zsh/plugin/` | prompt plugins: `schema.json` (the `plugin.json` a plugin repository must follow), `validate.jq`, `example/` |
 | `zsh/shkit.zsh` | `shkit`: edits the theme / project settings files for the user, manages plugins, updates shellkit (also in the background at startup), checks the setup (`doctor`) |

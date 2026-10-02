@@ -104,7 +104,8 @@ Checks what shellkit relies on, one line each: `ok`, `warn` (works, with less),
 - `jq`, and `glab` / `gh` with their login;
 - the docker daemon, and what sends [notifications](prompt.md#notifications);
 - `~/.config/shkit` (`700`) and `secrets.sh` (`600`), an old `~/.config/shell` not
-  migrated, `~/.zshrc` linked to shellkit, the prompt's cache writable;
+  migrated, `~/.zshrc` linked to shellkit (or `--`: [prompt only](installation.md#the-prompt-only),
+  or [trying it](installation.md#try-it-first)), the prompt's cache writable;
 - shellkit's version and branch, local changes that stop the auto-update, a newer
   release already fetched, the last update check;
 - the theme set, and each plugin against the schema.
