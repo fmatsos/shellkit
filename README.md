@@ -107,7 +107,8 @@ better. zsh-bench rates a *command lag* under 10 ms as impossible to tell from z
 | `compinit` alone (reference) | 13 ms | 14 ms | 0.02 ms |
 
 ¹ Its *instant prompt* replays a cached prompt before zsh has loaded; the first command
-waits 18 ms. ² Oh My Zsh's default theme showed no git info in the benchmark's repository.
+waits 18 ms. ² zsh-bench detected no git info in Oh My Zsh's default prompt
+(`has_git_prompt=0`): its command lag may not include git.
 
 Input lag (a key press to its character) stays under 1 ms for all of them. shellkit's
 networked data (fetch, merge request, CI) is never on that path: it runs in the

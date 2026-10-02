@@ -26,7 +26,8 @@
 
 zmodload zsh/datetime zsh/system
 zmodload -F zsh/stat b:zstat   # zstat only: a plain load would shadow the stat binary
-zmodload -F zsh/files b:zf_mkdir   # mkdir without a fork; zf_: the mkdir command stays
+zmodload -F zsh/files b:zf_mkdir 2>/dev/null ||   # mkdir without a fork; zf_: the mkdir command stays
+  function zf_mkdir { command mkdir "$@"; }       # a zsh built without zsh/files
 
 # No XDG_RUNTIME_DIR on macOS: its $TMPDIR is per-user too.
 typeset -g _prompt_cache=${XDG_RUNTIME_DIR:-${${TMPDIR:-/tmp}%/}/zsh-prompt-$UID}/zsh-prompt
