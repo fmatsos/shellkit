@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -eu
+
+if [[ ${1-} == mr && ${2-} == view && ${4-} == -F && ${5-} == json ]]; then
+  sleep 2
+  ci=success
+  printf '{"iid":482,"web_url":"https://gitlab.example.com/shop/-/merge_requests/482","draft":false,"state":"opened","head_pipeline":{"status":"%s"}}\n' "$ci"
+  exit 0
+fi
+if [[ ${1-} == api && ${2-} == projects/:id/merge_requests/482/approvals ]]; then
+  printf '{"approved_by":[{}]}\n'
+  exit 0
+fi
+if [[ ${1-} == api && ${2-} == projects/:id/merge_requests/482/discussions\?per_page=100 ]]; then
+  printf '[]\n'
+  exit 0
+fi
+exit 1

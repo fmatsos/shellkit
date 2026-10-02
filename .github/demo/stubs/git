@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -eu
+subcommand=
+previous=
+for arg in "$@"; do
+  if [[ $previous == -C ]]; then
+    previous=
+    continue
+  fi
+  if [[ $arg == -C ]]; then
+    previous=-C
+    continue
+  fi
+  subcommand=$arg
+  break
+done
+[[ $subcommand != fetch ]] || sleep 2
+exec /usr/bin/git "$@"

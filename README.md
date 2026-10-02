@@ -20,6 +20,11 @@ There's no framework (no Oh My Zsh, no Oh My Bash) and the first prompt shows in
 
 ## Features
 
+<p align="center">
+  <img src="docs/assets/demo-async.gif" alt="Recording: cd into a repository; the prompt appears at once with a muted ↻, then, with nothing typed, redraws itself with 3 commits behind and merge request !482 with CI passed" width="100%">
+</p>
+
+
 - **Async prompt**: local facts are shown right away. Networked data (`git fetch`,
   the merge / pull request and its CI, unhealthy containers) is fetched in the
   background, and the prompt redraws in place when it arrives. You don't need to

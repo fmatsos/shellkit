@@ -21,6 +21,11 @@ and installed plugins.
 
 ## Settings
 
+<p align="center">
+  <img src="assets/demo-shkit.gif" alt="Recording: shkit set format and shkit set color_accent change the prompt at once; shkit project then shkit set -p format change it in this repository only, and cd ~ shows the global format again" width="100%">
+</p>
+
+
 ### `shkit set [-p] NAME VALUE…`
 
 Sets `SHKIT_<NAME>`. `NAME` is case-insensitive, and `-` or `.` count as `_`:

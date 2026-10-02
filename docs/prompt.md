@@ -35,6 +35,10 @@ When a cache entry is older than its TTL, a background job refreshes it and a
 muted `↻` shows. When the job finishes, the prompt redraws in place, without
 pressing Enter. Every job has a timeout, and only one runs per cache entry.
 
+<p align="center">
+  <img src="assets/demo-async.gif" alt="Recording: cd into a repository; the prompt appears at once with a muted ↻, then, with nothing typed, redraws itself with 3 commits behind and merge request !482 with CI passed" width="100%">
+</p>
+
 ## Built-in blocks
 
 | Block | Shows | Source |
@@ -67,6 +71,14 @@ shkit set -p stack shop                                    # the compose project
 
 You can [write your own](blocks.md) or get them from [plugins](plugins.md).
 `shkit show` lists every block available.
+
+<p align="center">
+  <img src="assets/demo-git.gif" alt="Recording: appending to a file grows the prompt's diff stat; a git rebase that conflicts shows rebase 2/2 and 1 conflict, and git rebase --abort clears it" width="100%">
+</p>
+
+<p align="center">
+  <img src="assets/demo-commands.gif" alt="Recording: after sleep 4 the prompt shows 4s; after false it shows the failure and its exit code 1; after true both are gone" width="100%">
+</p>
 
 ## Format
 
