@@ -85,6 +85,34 @@ Defined in `shell/aliases.sh`, the same in bash and zsh.
 | `gs` | `git switch` |
 | `gpf` | `git push --force-with-lease` |
 | `dstop` | stops every running Docker container |
+| `p name` | jumps to a project in `~/src/host/owner/repo` or a folder in `~/sandbox` |
+
+### Jump to a project
+
+In both zsh and bash, `p tool` jumps to `~/src/github.com/alice/tool` when
+`tool` is unique. `p scratch` also finds a loose folder `~/sandbox/scratch`.
+The src layout is exactly three levels deep; sandbox folders are one level deep.
+Folders need not contain a `.git` directory.
+
+If several projects share a name, `p` lists their paths and returns 1 without
+changing directory. Use `p alice/tool` or `p github.com/alice/tool` to choose.
+An exact name or path suffix wins; otherwise a unique substring of the path
+works (`p idget` finds `widget`). No match or several substring matches returns 1.
+`p` alone prints usage.
+
+<kbd>Tab</kbd> completes project names, using `owner/name` for ambiguous names
+and `host/owner/name` when owners also repeat across hosts. Folders with spaces
+work too: `p 'scratch pad'`. Missing roots are silently skipped. Directories are
+scanned only when running `p` or its completion, never at shell startup.
+
+To change the roots, set this array in `~/.config/shkit/settings.sh` (both shells):
+
+```bash
+SHKIT_PROJECT_ROOTS=("$HOME/projects" "$HOME/playground")
+```
+
+The first entry is the src root (depth three), the second the sandbox root
+(depth one). Use absolute paths; an empty entry disables that root.
 
 Aliases and functions for one machine only go in `~/.config/shkit/aliases.sh`,
 which both shells source right after `shell/aliases.sh`. It is never committed.
@@ -102,4 +130,5 @@ which both shells source right after `shell/aliases.sh`. It is never committed.
 
 Its prompt is deliberately minimal: the directory, the git branch (through git's
 own `__git_ps1`) and a `$` that turns red when the last command failed. The full
-prompt, `shkit` and the directory jump are zsh only.
+prompt, `shkit` and jumping to a previously visited directory by its name alone
+are zsh only. The `p` project jump and its completion work in both shells.

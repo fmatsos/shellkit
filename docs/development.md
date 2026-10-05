@@ -57,6 +57,7 @@ Run before every commit, after `git add`:
 |-------|------|
 | syntax | `zsh -n` / `bash -n` / `sh -n` on every script |
 | prompt self-check | `zsh/prompt.check.zsh`: blocks, layers, `shkit`, plugins, updates. It forces the macOS fallbacks on Linux too (no `timeout`, no `/proc`) |
+| project self-check | `shell/projects.check.sh`, run with bash and zsh: fake project trees in a temporary HOME, matching and completion |
 | startup | the working tree's `zshrc` prints nothing on stderr, and starts in ≤ 60 ms (best of 5) |
 | secrets | the exact values of your `secrets.sh`, then common token shapes, in the index |
 

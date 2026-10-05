@@ -5,6 +5,7 @@ ok() { [[ $1 == 0 ]] && print "ok   $2" || { print "FAIL $2${3:+: $3}"; fail=1; 
 
 [[ -o interactive && $(whence -w shkit) == 'shkit: function' ]]; ok $? "zshrc loaded: shkit"
 alias ll gs >/dev/null && ll / >/dev/null; ok $? "aliases (shell/aliases.sh), ls flags"
+[[ $(whence -w p) == 'p: function' && $_comps[p] == _shkit_p ]]; ok $? "project jump and completion loaded"
 [[ $LC_CTYPE$LC_ALL$LANG == *[Uu][Tt][Ff]*8* ]]; ok $? "a UTF-8 locale" "${LC_CTYPE-}|${LANG-}"
 
 t=${$(mktemp -d):A}

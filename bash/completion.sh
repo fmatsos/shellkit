@@ -1,5 +1,15 @@
 # shellcheck shell=bash
-# Bash-only: git completion for the `gs` alias and the `git task` alias.
+# Bash-only: project and git completion.
+
+_shkit_p() {
+    local candidate
+    COMPREPLY=()
+    [ "$COMP_CWORD" -eq 1 ] || return 0
+    while IFS= read -r candidate; do
+        COMPREPLY+=("$candidate")
+    done < <(_shkit_project_completions "${COMP_WORDS[COMP_CWORD]}")
+}
+complete -F _shkit_p p
 
 # Charge la complétion Git si elle n'est pas déjà disponible.
 if ! declare -F __git_main >/dev/null 2>&1; then

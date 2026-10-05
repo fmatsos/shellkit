@@ -4,6 +4,7 @@ ok() { [[ $1 == 0 ]] && echo "ok   $2" || { echo "FAIL $2${3:+: $3}"; fail=1; };
 
 [[ $- == *i* ]] && alias ll gs >/dev/null && ll / >/dev/null; ok $? "bashrc loaded: aliases, ls flags"
 shopt -q autocd globstar && [[ -o noclobber ]]; ok $? "options: autocd, globstar, noclobber"
+declare -F p >/dev/null && [[ $(complete -p p) == *'_shkit_p p' ]]; ok $? "project jump and completion loaded"
 
 t=$(mktemp -d)
 git init -q -b main "$t/repo" && cd "$t/repo" && git config user.email t@t && git config user.name t &&

@@ -111,6 +111,14 @@ function _git-task {
   compadd -U -Q -- $m
 }
 
+function _shkit_p {
+  (( CURRENT == 2 )) || return 1
+  local -a projects
+  projects=("${(@f)$(_shkit_project_completions "$PREFIX")}")
+  compadd -U -- "${projects[@]}"
+}
+compdef _shkit_p p
+
 # --- This machine only (never committed); before the prompt, whose toggles
 #     (SHKIT_SHOW_MR=false…) it may set.
 [[ -r $SHELL_LOCAL_DIR/settings.sh ]] && . $SHELL_LOCAL_DIR/settings.sh

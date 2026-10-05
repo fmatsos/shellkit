@@ -14,6 +14,11 @@ for f in "$C"/bash/bashrc "$C"/bash/*.sh "$C"/shell/*.sh "$C"/zsh/install.sh "$C
 out=$(zsh "$C/zsh/prompt.check.zsh" 2>&1) || ko "prompt self-check:"$'\n'"$(grep -v '^ok' <<<"$out")"
 echo "prompt self-check: $(grep -c '^ok' <<<"$out") ok"
 
+for shell in bash zsh; do
+  out=$("$shell" "$C/shell/projects.check.sh" 2>&1) || ko "$shell projects self-check:"$'\n'"$out"
+  echo "$shell projects self-check: $(grep -c '^ok' <<<"$out") ok"
+done
+
 # Startup of this working tree's zshrc (ZDOTDIR, not whatever ~/.zshrc is): no
 # output on stderr, and best of 5 (the first run warms the caches) within 60 ms,
 # usual ~35 ms. Timed by zsh: BSD date (macOS) has no %N.
