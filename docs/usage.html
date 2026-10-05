@@ -579,8 +579,31 @@ with <code>&lt;prefix&gt;</code>, case-insensitive: <code>feature/SHOP-42_checko
 <td><code>dstop</code></td>
 <td>stops every running Docker container</td>
 </tr>
+<tr>
+<td><code>p name</code></td>
+<td>jumps to a project in <code>~/src/host/owner/repo</code> or a folder in <code>~/sandbox</code>
+</td>
+</tr>
 </tbody>
 </table>
+<h3 id="jump-to-a-project">Jump to a project</h3>
+<p>In both zsh and bash, <code>p tool</code> jumps to <code>~/src/github.com/alice/tool</code> when
+<code>tool</code> is unique. <code>p scratch</code> also finds a loose folder <code>~/sandbox/scratch</code>.
+The src layout is exactly three levels deep; sandbox folders are one level deep.
+Folders need not contain a <code>.git</code> directory.</p>
+<p>If several projects share a name, <code>p</code> lists their paths and returns 1 without
+changing directory. Use <code>p alice/tool</code> or <code>p github.com/alice/tool</code> to choose.
+An exact name or path suffix wins; otherwise a unique substring of the path
+works (<code>p idget</code> finds <code>widget</code>). No match or several substring matches returns 1.
+<code>p</code> alone prints usage.</p>
+<p><kbd>Tab</kbd> completes project names, using <code>owner/name</code> for ambiguous names
+and <code>host/owner/name</code> when owners also repeat across hosts. Folders with spaces
+work too: <code>p 'scratch pad'</code>. Missing roots are silently skipped. Directories are
+scanned only when running <code>p</code> or its completion, never at shell startup.</p>
+<p>To change the roots, set this array in <code>~/.config/shkit/settings.sh</code> (both shells):</p>
+<div class="highlight highlight-source-shell"><pre>SHKIT_PROJECT_ROOTS=(<span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$HOME</span>/projects<span class="pl-pds">"</span></span> <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$HOME</span>/playground<span class="pl-pds">"</span></span>)</pre></div>
+<p>The first entry is the src root (depth three), the second the sandbox root
+(depth one). Use absolute paths; an empty entry disables that root.</p>
 <p>Aliases and functions for one machine only go in <code>~/.config/shkit/aliases.sh</code>,
 which both shells source right after <code>shell/aliases.sh</code>. It is never committed.</p>
 <blockquote>
@@ -595,7 +618,8 @@ shebang) don't see aliases.</p>
 <kbd>Esc</kbd> for <code>sudo</code>, colored <code>man</code> and the same aliases.</p>
 <p>Its prompt is deliberately minimal: the directory, the git branch (through git's
 own <code>__git_ps1</code>) and a <code>$</code> that turns red when the last command failed. The full
-prompt, <code>shkit</code> and the directory jump are zsh only.</p>
+prompt, <code>shkit</code> and jumping to a previously visited directory by its name alone
+are zsh only. The <code>p</code> project jump and its completion work in both shells.</p>
 
 <nav class="pager" aria-label="Previous and next pages"><a class="prev" href="installation.html"><small>Previous</small>Installation</a><a class="next" href="configuration.html"><small>Next</small>Configuration</a></nav>
 </div>
