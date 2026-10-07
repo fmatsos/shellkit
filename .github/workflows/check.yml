@@ -11,6 +11,8 @@ on:
   workflow_call:
 env:
   SHKIT_AUTO_UPDATE: false   # the installed shells must not update the checkout under test
+permissions:
+  contents: read
 jobs:
   check:
     strategy:
