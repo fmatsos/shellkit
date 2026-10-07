@@ -29,5 +29,9 @@ jobs:
         run: |
           [[ $TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]] || { echo "not a version tag: $TAG" >&2; exit 1; }
           pre=; [[ $TAG == *-* ]] && pre=--prerelease   # v2.0.0-rc1: shkit update skips it
-          gh release create "$TAG" --verify-tag --generate-notes --title "shellkit $TAG" $pre
+          # GitHub's generated notes, without the owner's own name: no "by @owner", no "New Contributors" entry for them
+          notes=$(gh api "repos/$GITHUB_REPOSITORY/releases/generate-notes" -f tag_name="$TAG" --jq .body |
+            sed -E "s/ by @$GITHUB_REPOSITORY_OWNER in / in /; /^\* @$GITHUB_REPOSITORY_OWNER made their first contribution/d" |
+            perl -0pe 's/## New Contributors\n+(?=\*\*Full Changelog)//')
+          gh release create "$TAG" --verify-tag --notes "$notes" --title "shellkit $TAG" $pre
           [[ -n $pre ]] || git push origin "$(git rev-parse "$TAG^{commit}"):refs/heads/release"   # clones update to it
