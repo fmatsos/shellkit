@@ -162,4 +162,4 @@ No GNU coreutils are needed on macOS. See [Installation](docs/installation.md).
 
 ## License
 
-Public domain, see [LICENSE](LICENSE) ([Unlicense](https://unlicense.org)).
+Public domain, see [LICENSE](LICENSE) ([Unlicense](https://unlicense.org)). Contributions are dedicated to the public domain too, see [CONTRIBUTING](CONTRIBUTING.md).
