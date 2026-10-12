@@ -434,8 +434,12 @@ to <code>cd /home/me/code/acme-shop</code> before it runs, so the history record
 <p>A word that is a command, an alias, a function or a directory in the current
 directory keeps its usual meaning. The list of visited directories is
 <code>~/.cache/zsh/recent-dirs</code> (the last 500, via zsh's <code>cdr</code>).</p>
-<p><kbd>Tab</kbd> on the first word completes those names too, next to commands and
-local directories: <code>acme-s</code> <kbd>Tab</kbd> → <code>acme-shop</code>.</p>
+<p><kbd>Tab</kbd> on the first word completes those directories too, next to commands
+and local directories: <code>acme-s</code> <kbd>Tab</kbd> → <code>~/code/acme-shop</code>, the full path
+in place of the name (case-insensitive). Several match: the menu lists their paths.</p>
+<p>While the line is a single word, what <kbd>Enter</kbd> will do with it shows in
+color after the cursor (never part of the line): <code>(b)</code> a command (binary, alias,
+function, builtin), <code>(d)</code> a directory, <code>(f)</code> a file.</p>
 <p><code>AUTO_CD</code> is on too: <code>www</code> alone is <code>cd www</code>, and <code>..</code> is <code>cd ..</code>.</p>
 <h2 id="history">History</h2>
 <ul>
