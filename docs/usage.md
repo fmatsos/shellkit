@@ -34,7 +34,8 @@ in place of the name (case-insensitive). Several match: the menu lists their pat
 
 While the line is a single word, what <kbd>Enter</kbd> will do with it shows in
 color after the cursor (never part of the line): `(b)` a command (binary, alias,
-function, builtin), `(d)` a directory, `(f)` a file.
+function, builtin), `(d)` a directory, `(f)` a file. While the <kbd>Tab</kbd> menu is
+open it waits for the choice.
 
 `AUTO_CD` is on too: `www` alone is `cd www`, and `..` is `cd ..`.
 

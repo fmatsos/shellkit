@@ -71,12 +71,14 @@ zle -N accept-line _zshrc_jump
 # --- A one-word line shows what <Enter> will do with it, after the cursor --------
 # `(b)` a command (binary, alias, function, builtin), `(d)` a directory cd'ed to
 # (a path, or a name <Enter> jumps to), `(f)` a file. Display only: never part of the line.
-typeset -g _zshrc_kind_hl
-function _zshrc_kind_clear {
-  region_highlight=(${region_highlight:#$_zshrc_kind_hl}); POSTDISPLAY= _zshrc_kind_hl=
+# The menu of several <Tab> matches redraws without this hook and loses colors past the
+# line's end (zsh 5.9), so the hint waits for the choice ($_zshrc_tab_n: _zshrc_command).
+function _zshrc_kind_clear {   # zle moves highlights as the line changes: match by shape
+  region_highlight=(${region_highlight:#<-> <-> fg=(green|blue|yellow)}); POSTDISPLAY=
 }
 function _zshrc_kind {
   _zshrc_kind_clear
+  [[ $KEYS == $'\t' ]] && (( _zshrc_tab_n > 1 )) && return 0
   local -a w=(${=BUFFER}); local k c   # one word, spaces around allowed (Tab adds one)
   (( $#w == 1 )) || return 0
   local f=${(Q)w/#\~/$HOME}   # the word as a path: unquoted, ~ expanded (no glob)
@@ -85,8 +87,7 @@ function _zshrc_kind {
   elif [[ -f $f ]]; then k=f c=yellow
   else return 0; fi
   POSTDISPLAY="   ($k)"
-  _zshrc_kind_hl="$#BUFFER $(( $#BUFFER + $#POSTDISPLAY )) fg=$c"
-  region_highlight+=($_zshrc_kind_hl)
+  region_highlight+=("$#BUFFER $(( $#BUFFER + $#POSTDISPLAY )) fg=$c")
 }
 autoload -Uz add-zle-hook-widget
 add-zle-hook-widget line-pre-redraw _zshrc_kind
@@ -152,6 +153,7 @@ function _zshrc_command {
   (( $#paths )) && _wanted recent-dirs expl 'visited directory' compadd -U -Q -- $paths && ret=0
   # several: straight into the menu, not their common prefix (a path no one asked for)
   (( $#paths && compstate[nmatches] > 1 )) && compstate[insert]=menu
+  _zshrc_tab_n=$compstate[nmatches]   # see _zshrc_kind
   return ret
 }
 compdef _zshrc_command -command-
