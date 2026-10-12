@@ -111,6 +111,18 @@ function _git-task {
   compadd -U -Q -- $m
 }
 
+# <Tab> on the first word: commands and local directories (zsh's _autocd), plus the
+# names of the visited directories that <Enter> would jump to (see _zshrc_jump).
+function _zshrc_command {
+  _autocd; local ret=$? expl
+  local -a reply; chpwd_recent_filehandler
+  reply=(${^reply}(N/))   # still there
+  _wanted recent-dirs expl 'visited directory' \
+    compadd -- ${(u)${${reply:t}:#*[[:space:]~\$]*}} && ret=0
+  return ret
+}
+compdef _zshrc_command -command-
+
 function _shkit_p {
   (( CURRENT == 2 )) || return 1
   local -a projects

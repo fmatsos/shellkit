@@ -28,6 +28,9 @@ A word that is a command, an alias, a function or a directory in the current
 directory keeps its usual meaning. The list of visited directories is
 `~/.cache/zsh/recent-dirs` (the last 500, via zsh's `cdr`).
 
+<kbd>Tab</kbd> on the first word completes those names too, next to commands and
+local directories: `acme-s` <kbd>Tab</kbd> → `acme-shop`.
+
 `AUTO_CD` is on too: `www` alone is `cd www`, and `..` is `cd ..`.
 
 ## History
