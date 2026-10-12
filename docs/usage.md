@@ -28,8 +28,13 @@ A word that is a command, an alias, a function or a directory in the current
 directory keeps its usual meaning. The list of visited directories is
 `~/.cache/zsh/recent-dirs` (the last 500, via zsh's `cdr`).
 
-<kbd>Tab</kbd> on the first word completes those names too, next to commands and
-local directories: `acme-s` <kbd>Tab</kbd> → `acme-shop`.
+<kbd>Tab</kbd> on the first word completes those directories too, next to commands
+and local directories: `acme-s` <kbd>Tab</kbd> → `~/code/acme-shop`, the full path
+in place of the name (case-insensitive). Several match: the menu lists their paths.
+
+While the line is a single word, what <kbd>Enter</kbd> will do with it shows in
+color after the cursor (never part of the line): `(b)` a command (binary, alias,
+function, builtin), `(d)` a directory, `(f)` a file.
 
 `AUTO_CD` is on too: `www` alone is `cd www`, and `..` is `cd ..`.
 

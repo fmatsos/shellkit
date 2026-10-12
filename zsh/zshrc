@@ -61,8 +61,36 @@ function _zshrc_jump_target { # WORD -> REPLY: the most recent visited dir named
   for d in $reply; do [[ ${d:t} == $1 && -d $d ]] && { REPLY=$d; return 0; }; done
   return 1
 }
-function _zshrc_jump { _zshrc_jump_target $BUFFER && BUFFER="cd ${(q-)REPLY}"; zle .accept-line; }
+function _zshrc_jump { # spaces around the word allowed: <Tab> leaves one after it
+  local -a w=(${=BUFFER})
+  (( $#w == 1 )) && _zshrc_jump_target $w && BUFFER="cd ${(q-)REPLY}"
+  zle .accept-line
+}
 zle -N accept-line _zshrc_jump
+
+# --- A one-word line shows what <Enter> will do with it, after the cursor --------
+# `(b)` a command (binary, alias, function, builtin), `(d)` a directory cd'ed to
+# (a path, or a name <Enter> jumps to), `(f)` a file. Display only: never part of the line.
+typeset -g _zshrc_kind_hl
+function _zshrc_kind_clear {
+  region_highlight=(${region_highlight:#$_zshrc_kind_hl}); POSTDISPLAY= _zshrc_kind_hl=
+}
+function _zshrc_kind {
+  _zshrc_kind_clear
+  local -a w=(${=BUFFER}); local k c   # one word, spaces around allowed (Tab adds one)
+  (( $#w == 1 )) || return 0
+  local f=${(Q)w/#\~/$HOME}   # the word as a path: unquoted, ~ expanded (no glob)
+  if whence -- $w >/dev/null; then k=b c=green
+  elif [[ -d $f ]] || _zshrc_jump_target $w; then k=d c=blue
+  elif [[ -f $f ]]; then k=f c=yellow
+  else return 0; fi
+  POSTDISPLAY="   ($k)"
+  _zshrc_kind_hl="$#BUFFER $(( $#BUFFER + $#POSTDISPLAY )) fg=$c"
+  region_highlight+=($_zshrc_kind_hl)
+}
+autoload -Uz add-zle-hook-widget
+add-zle-hook-widget line-pre-redraw _zshrc_kind
+add-zle-hook-widget line-finish _zshrc_kind_clear   # the line run keeps no hint
 
 # --- Colored man pages --------------------------------------------------------
 function man {
@@ -112,13 +140,18 @@ function _git-task {
 }
 
 # <Tab> on the first word: commands and local directories (zsh's _autocd), plus the
-# names of the visited directories that <Enter> would jump to (see _zshrc_jump).
+# visited directories whose name starts with the word (case-insensitive): the word
+# becomes the full path (AUTO_CD then cds to it), so you see where it leads.
 function _zshrc_command {
-  _autocd; local ret=$? expl
-  local -a reply; chpwd_recent_filehandler
-  reply=(${^reply}(N/))   # still there
-  _wanted recent-dirs expl 'visited directory' \
-    compadd -- ${(u)${${reply:t}:#*[[:space:]~\$]*}} && ret=0
+  _autocd; local ret=$? expl d
+  local -a reply paths; chpwd_recent_filehandler
+  for d in ${^reply}(N/); do   # still there
+    [[ ${(L)d:t} == ${(L)PREFIX}* ]] || continue
+    [[ $d == $HOME/* ]] && paths+="~/${(q-)d#$HOME/}" || paths+=${(q-)d}
+  done
+  (( $#paths )) && _wanted recent-dirs expl 'visited directory' compadd -U -Q -- $paths && ret=0
+  # several: straight into the menu, not their common prefix (a path no one asked for)
+  (( $#paths && compstate[nmatches] > 1 )) && compstate[insert]=menu
   return ret
 }
 compdef _zshrc_command -command-

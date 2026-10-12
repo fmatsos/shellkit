@@ -16,6 +16,7 @@ _prompt_precmd >/dev/null; p=${(%)PROMPT}
 print -r -- ${(qqqq):-$t/repo} >>| ~/.cache/zsh/recent-dirs   # >>|: noclobber; what `cd` records (not from a script)
 cd ~; [[ $(_zshrc_jump_target repo; print $REPLY) == $t/repo ]]; ok $? "a directory's name alone jumps to it"
 [[ $_comps[-command-] == _zshrc_command ]]; ok $? "<Tab> on the first word offers the visited directories"
+[[ $(zstyle -L zle-line-pre-redraw) == *_zshrc_kind* ]]; ok $? "a one-word line shows what Enter will do"
 
 command cp -R $here/../zsh/plugin/example $t/ex && git init -q -b main $t/ex &&
   git -C $t/ex config user.email t@t && git -C $t/ex config user.name t && git -C $t/ex add -A && git -C $t/ex commit -qm ex
