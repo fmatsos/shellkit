@@ -73,6 +73,9 @@ command -v aws_completer >/dev/null && complete -C aws_completer aws
 
 # --- This machine only (never committed) -------------------------------------
 [[ -r $SHELL_LOCAL_DIR/settings.sh ]] && . "$SHELL_LOCAL_DIR/settings.sh"
+for _f in "$SHELL_LOCAL_DIR"/rc.d/*; do   # drop-ins, e.g. from a dotfiles repo, by name
+  case $_f in *.sh|*.bash) [[ -r $_f ]] && . "$_f" ;; esac
+done; unset _f
 
 # --- Aliases, prompt ----------------------------------------------------------
 . "$_bashrc_dir/../shell/aliases.sh"

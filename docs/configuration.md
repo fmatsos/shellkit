@@ -8,6 +8,7 @@ Everything specific to one machine lives outside the repository, in one director
 - [Settings layers](#settings-layers)
 - [Per-project settings](#per-project-settings)
 - [Secrets](#secrets)
+- [Drop-ins](#drop-ins)
 - [Machine settings](#machine-settings)
 
 ## The files
@@ -17,6 +18,8 @@ Everything specific to one machine lives outside the repository, in one director
 ├── settings.sh        # machine settings: PATH, hosts, env flags (bash and zsh)
 ├── secrets.sh         # tokens and API keys, chmod 600 (bash and zsh)
 ├── aliases.sh         # your own aliases and functions (bash and zsh)
+├── rc.d/*.sh          # drop-in snippets, e.g. linked from a dotfiles repo (bash and zsh)
+├── rc.d/*.zsh|*.bash  # same, for one shell only
 ├── theme.zsh          # your prompt look (zsh)
 ├── projects/*.zsh     # prompt settings for one project each (zsh)
 ├── prompt.d/*.zsh     # prompt blocks of your own (zsh)
@@ -30,7 +33,7 @@ Every file is optional. You rarely need to edit them by hand:
 Load order in `zshrc`:
 
 1. options, history, keys, completion;
-2. `settings.sh`;
+2. `settings.sh`, then `rc.d/*.sh` and `rc.d/*.zsh` (`*.bash` in bash), in the alphanumeric order of their names;
 3. `shell/aliases.sh`, then `aliases.sh`, then the prompt, which reads `theme.zsh`, `projects/`,
    `plugins/` and `prompt.d/` (below);
 4. `secrets.sh`, last.
@@ -113,6 +116,16 @@ export SLACKCLI_XOXC_TOKEN=<token>
   never the value.
 - `.gitignore` excludes `secrets.sh`, `settings.sh`, `*.local` and `.env*` as a
   last line of defence.
+
+## Drop-ins
+
+`rc.d/` takes one snippet per file, so a dotfiles repository can track them (one file linked
+per snippet) without owning `settings.sh`. `*.sh` is read by both shells, `*.zsh` by zsh only,
+`*.bash` by bash only. A snippet runs after `settings.sh` and before the prompt.
+
+The file name sets the order: all the files are sorted together by name, whatever their
+extension. Start a name with a number to place it, `00-vte.sh` before `10-editor.sh`; files
+that share a prefix (`00-a.sh`, `00-b.zsh`) follow alphabetical order.
 
 ## Machine settings
 
