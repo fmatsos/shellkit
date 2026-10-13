@@ -508,8 +508,9 @@ alone, and the automatic update is off.</p>
 <span class="pl-c1">exec</span> zsh</pre></div>
 <p><code>zsh/install.sh</code>:</p>
 <ol>
-<li>symlinks <code>~/.zshrc</code> and <code>~/.zshenv</code> to the repository. An existing file is
-kept as <code>~/.zshrc.pre-config</code>;</li>
+<li>puts a shellkit block at the top of <code>~/.zshrc</code> and symlinks <code>~/.zshenv</code> to the repository.
+An existing <code>~/.zshrc</code> keeps its content below the block (and is copied once to
+<code>~/.zshrc.pre-config</code>); a former symlink to shellkit becomes a file of your own;</li>
 <li>creates <code>~/.config/shkit/</code> (chmod 700), your <a href="configuration.html">local configuration</a>;</li>
 <li>generates completions for <code>codex</code>, <code>symfony</code>, <code>npm</code> and <code>composer</code> when they are
 installed;</li>
@@ -517,11 +518,14 @@ installed;</li>
 doesn't exist yet.</li>
 </ol>
 <p>Then <code>shkit doctor</code> checks the result: versions, locale, font, tools and files.</p>
-<p><code>bash/install.sh</code> symlinks <code>~/.bashrc</code> (an existing file is kept as
-<code>~/.bashrc.pre-config</code>), generates the same completions for bash and, on macOS,
+<p><code>bash/install.sh</code> puts the same block at the top of <code>~/.bashrc</code> (an existing file keeps its
+content below it, and is copied once to <code>~/.bashrc.pre-config</code>), generates the same completions for bash and, on macOS,
 creates a <code>~/.bash_profile</code> that sources it.</p>
 <p>Both scripts can be run again at any time, for example after upgrading one of
-the tools above to refresh its completion.</p>
+the tools above to refresh its completion. Each run rewrites the block between
+<code># &gt;&gt;&gt; shellkit &gt;&gt;&gt;</code> and <code># &lt;&lt;&lt; shellkit &lt;&lt;&lt;</code>, and nothing else: write your own lines
+anywhere outside it, they are never versioned. Other tools can add their own block
+the same way. Keep the shellkit block first.</p>
 <p>To make zsh your login shell:</p>
 <div class="highlight highlight-source-shell"><pre>chsh -s <span class="pl-s"><span class="pl-pds">"</span><span class="pl-s"><span class="pl-pds">$(</span>command -v zsh<span class="pl-pds">)</span></span><span class="pl-pds">"</span></span></pre></div>
 <h2 id="the-prompt-only">The prompt only</h2>
@@ -599,9 +603,9 @@ moved into <code>~/.config/shkit/</code> the same way.</li>
 <div class="highlight highlight-source-shell"><pre>bash <span class="pl-k">~</span>/shellkit/shell/install-local.sh
 <span class="pl-c1">exec</span> zsh</pre></div>
 <h2 id="uninstalling">Uninstalling</h2>
-<div class="highlight highlight-source-shell"><pre>rm <span class="pl-k">~</span>/.zshrc <span class="pl-k">~</span>/.zshenv <span class="pl-k">~</span>/.bashrc              <span class="pl-c"><span class="pl-c">#</span> the symlinks</span>
-mv <span class="pl-k">~</span>/.zshrc.pre-config <span class="pl-k">~</span>/.zshrc              <span class="pl-c"><span class="pl-c">#</span> if you had one before</span>
-mv <span class="pl-k">~</span>/.bashrc.pre-config <span class="pl-k">~</span>/.bashrc</pre></div>
+<div class="highlight highlight-source-shell"><pre>rm <span class="pl-k">~</span>/.zshenv                                 <span class="pl-c"><span class="pl-c">#</span> the symlink</span>
+<span class="pl-c"><span class="pl-c">#</span> ~/.zshrc and ~/.bashrc: delete the lines between "# &gt;&gt;&gt; shellkit &gt;&gt;&gt;" and "# &lt;&lt;&lt; shellkit &lt;&lt;&lt;"</span>
+<span class="pl-c"><span class="pl-c">#</span> (or mv ~/.zshrc.pre-config ~/.zshrc, ~/.bashrc.pre-config ~/.bashrc, to get your old file back)</span></pre></div>
 <p><code>~/.config/shkit/</code> holds your settings and secrets: keep it or delete it.</p>
 
 <nav class="pager" aria-label="Previous and next pages"><a class="next" href="usage.html"><small>Next</small>Usage</a></nav>

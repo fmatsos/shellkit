@@ -436,7 +436,12 @@ document.documentElement.dataset.motion = m || (matchMedia("(prefers-reduced-mot
 <td>
 <code>zsh/zshrc</code>, <code>zsh/zshenv</code>
 </td>
-<td>the zsh config, symlinked by <code>zsh/install.sh</code>
+<td>the zsh config: <code>zshrc</code> is loaded by a block of <code>~/.zshrc</code>, <code>zshenv</code> symlinked, both by <code>zsh/install.sh</code>
+</td>
+</tr>
+<tr>
+<td><code>shell/rc-block.sh</code></td>
+<td>writes or rewrites a <code># &gt;&gt;&gt; name &gt;&gt;&gt;</code> block at the top of a file (both install scripts); self-check <code>bash shell/rc-block.check.sh</code>
 </td>
 </tr>
 <tr>
