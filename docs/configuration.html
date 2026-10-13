@@ -421,6 +421,7 @@ document.documentElement.dataset.motion = m || (matchMedia("(prefers-reduced-mot
 <li><a href="#settings-layers">Settings layers</a></li>
 <li><a href="#per-project-settings">Per-project settings</a></li>
 <li><a href="#secrets">Secrets</a></li>
+<li><a href="#drop-ins">Drop-ins</a></li>
 <li><a href="#machine-settings">Machine settings</a></li>
 </ul>
 <h2 id="the-files">The files</h2>
@@ -428,6 +429,8 @@ document.documentElement.dataset.motion = m || (matchMedia("(prefers-reduced-mot
 ├── settings.sh        # machine settings: PATH, hosts, env flags (bash and zsh)
 ├── secrets.sh         # tokens and API keys, chmod 600 (bash and zsh)
 ├── aliases.sh         # your own aliases and functions (bash and zsh)
+├── rc.d/*.sh          # drop-in snippets, e.g. linked from a dotfiles repo (bash and zsh)
+├── rc.d/*.zsh|*.bash  # same, for one shell only
 ├── theme.zsh          # your prompt look (zsh)
 ├── projects/*.zsh     # prompt settings for one project each (zsh)
 ├── prompt.d/*.zsh     # prompt blocks of your own (zsh)
@@ -440,7 +443,7 @@ document.documentElement.dataset.motion = m || (matchMedia("(prefers-reduced-mot
 <ol>
 <li>options, history, keys, completion;</li>
 <li>
-<code>settings.sh</code>;</li>
+<code>settings.sh</code>, then <code>rc.d/*.sh</code> and <code>rc.d/*.zsh</code> (<code>*.bash</code> in bash), in the alphanumeric order of their names;</li>
 <li>
 <code>shell/aliases.sh</code>, then <code>aliases.sh</code>, then the prompt, which reads <code>theme.zsh</code>, <code>projects/</code>,
 <code>plugins/</code> and <code>prompt.d/</code> (below);</li>
@@ -538,6 +541,13 @@ never the value.</li>
 <code>.gitignore</code> excludes <code>secrets.sh</code>, <code>settings.sh</code>, <code>*.local</code> and <code>.env*</code> as a
 last line of defence.</li>
 </ul>
+<h2 id="drop-ins">Drop-ins</h2>
+<p><code>rc.d/</code> takes one snippet per file, so a dotfiles repository can track them (one file linked
+per snippet) without owning <code>settings.sh</code>. <code>*.sh</code> is read by both shells, <code>*.zsh</code> by zsh only,
+<code>*.bash</code> by bash only. A snippet runs after <code>settings.sh</code> and before the prompt.</p>
+<p>The file name sets the order: all the files are sorted together by name, whatever their
+extension. Start a name with a number to place it, <code>00-vte.sh</code> before <code>10-editor.sh</code>; files
+that share a prefix (<code>00-a.sh</code>, <code>00-b.zsh</code>) follow alphabetical order.</p>
 <h2 id="machine-settings">Machine settings</h2>
 <p><code>settings.sh</code> is for anything that differs between machines. Both shells read it:</p>
 <div class="highlight highlight-source-shell"><pre><span class="pl-k">export</span> PATH=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$HOME</span>/tools/bin:<span class="pl-smi">$PATH</span><span class="pl-pds">"</span></span>
