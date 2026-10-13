@@ -55,8 +55,9 @@ exec zsh
 
 `zsh/install.sh`:
 
-1. symlinks `~/.zshrc` and `~/.zshenv` to the repository. An existing file is
-   kept as `~/.zshrc.pre-config`;
+1. puts a shellkit block at the top of `~/.zshrc` and symlinks `~/.zshenv` to the repository.
+   An existing `~/.zshrc` keeps its content below the block (and is copied once to
+   `~/.zshrc.pre-config`); a former symlink to shellkit becomes a file of your own;
 2. creates `~/.config/shkit/` (chmod 700), your [local configuration](configuration.md);
 3. generates completions for `codex`, `symfony`, `npm` and `composer` when they are
    installed;
@@ -65,12 +66,15 @@ exec zsh
 
 Then `shkit doctor` checks the result: versions, locale, font, tools and files.
 
-`bash/install.sh` symlinks `~/.bashrc` (an existing file is kept as
-`~/.bashrc.pre-config`), generates the same completions for bash and, on macOS,
+`bash/install.sh` puts the same block at the top of `~/.bashrc` (an existing file keeps its
+content below it, and is copied once to `~/.bashrc.pre-config`), generates the same completions for bash and, on macOS,
 creates a `~/.bash_profile` that sources it.
 
 Both scripts can be run again at any time, for example after upgrading one of
-the tools above to refresh its completion.
+the tools above to refresh its completion. Each run rewrites the block between
+`# >>> shellkit >>>` and `# <<< shellkit <<<`, and nothing else: write your own lines
+anywhere outside it, they are never versioned. Other tools can add their own block
+the same way. Keep the shellkit block first.
 
 To make zsh your login shell:
 
@@ -177,9 +181,9 @@ exec zsh
 ## Uninstalling
 
 ```bash
-rm ~/.zshrc ~/.zshenv ~/.bashrc              # the symlinks
-mv ~/.zshrc.pre-config ~/.zshrc              # if you had one before
-mv ~/.bashrc.pre-config ~/.bashrc
+rm ~/.zshenv                                 # the symlink
+# ~/.zshrc and ~/.bashrc: delete the lines between "# >>> shellkit >>>" and "# <<< shellkit <<<"
+# (or mv ~/.zshrc.pre-config ~/.zshrc, ~/.bashrc.pre-config ~/.bashrc, to get your old file back)
 ```
 
 `~/.config/shkit/` holds your settings and secrets: keep it or delete it.

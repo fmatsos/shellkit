@@ -1,15 +1,28 @@
 #!/usr/bin/env bash
-# Links ~/.zshrc and ~/.zshenv to this repo, generates completions, and imports the bash
-# history once (only when ~/.zsh_history does not exist yet). Re-runnable:
-# run it again after upgrading codex/symfony/npm/composer.
+# Puts a shellkit block at the top of ~/.zshrc (the rest of the file is yours), links
+# ~/.zshenv to this repo, generates completions, and imports the bash history once (only
+# when ~/.zsh_history does not exist yet). Re-runnable: run it again after upgrading
+# codex/symfony/npm/composer, or to refresh the block.
 set -eu
 dir=$(cd "$(dirname "$0")" && pwd)
 
-for f in zshrc zshenv; do
-  if [[ -e ~/.$f && ! -L ~/.$f ]]; then mv ~/.$f ~/.$f.pre-config; echo "~/.$f saved as ~/.$f.pre-config"; fi
-  ln -sfn "$dir/$f" ~/.$f
-  echo "~/.$f -> $dir/$f"
-done
+f=zshenv
+if [[ -e ~/.$f && ! -L ~/.$f ]]; then mv ~/.$f ~/.$f.pre-config; echo "~/.$f saved as ~/.$f.pre-config"; fi
+ln -sfn "$dir/$f" ~/.$f
+echo "~/.$f -> $dir/$f"
+
+# ~/.zshrc is a file of your own: a block loads shellkit, the rest is yours (never versioned).
+if [[ -L ~/.zshrc ]]; then   # the former symlink: nothing of yours in it, unless it led elsewhere
+  if [[ ~/.zshrc -ef $dir/zshrc ]]; then rm ~/.zshrc; else cp -L ~/.zshrc ~/.zshrc.tmp && mv -f ~/.zshrc.tmp ~/.zshrc; fi
+elif [[ -s ~/.zshrc ]] && ! grep -qxF '# >>> shellkit >>>' ~/.zshrc && [[ ! -e ~/.zshrc.pre-config ]]; then
+  cp -p ~/.zshrc ~/.zshrc.pre-config; echo "~/.zshrc saved as ~/.zshrc.pre-config"
+fi
+home='$HOME'; shown=${dir/#"$HOME"/$home}   # the block says $HOME, not this machine's path
+"$dir/../shell/rc-block.sh" ~/.zshrc shellkit <<EOB
+# Managed by shellkit (zsh/install.sh): rewritten at each run. Your own lines go outside this block.
+[[ -r "$shown/zshrc" ]] && . "$shown/zshrc"
+EOB
+echo "~/.zshrc: shellkit block -> $dir/zshrc"
 
 "$dir/../shell/install-local.sh"   # ~/.config/shkit (settings, secrets, theme, prompt blocks)
 

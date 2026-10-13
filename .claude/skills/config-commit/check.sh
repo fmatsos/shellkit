@@ -19,6 +19,9 @@ for shell in bash zsh; do
   echo "$shell projects self-check: $(grep -c '^ok' <<<"$out") ok"
 done
 
+out=$(bash "$C/shell/rc-block.check.sh" 2>&1) || ko "rc-block self-check:"$'\n'"$out"
+echo "rc-block self-check: $(grep -c '^ok' <<<"$out") ok"
+
 # Startup of this working tree's zshrc (ZDOTDIR, not whatever ~/.zshrc is): no
 # output on stderr, and best of 5 (the first run warms the caches) within 60 ms,
 # usual ~35 ms. Timed by zsh: BSD date (macOS) has no %N.

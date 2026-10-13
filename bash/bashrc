@@ -1,5 +1,6 @@
 # shellcheck shell=bash
-# ~/.bashrc — a symlink to <config repo>/bash/bashrc (see install.sh).
+# <config repo>/bash/bashrc, loaded by the shellkit block that bash/install.sh puts at the top of
+# ~/.bashrc. The rest of ~/.bashrc is yours and never versioned.
 #
 # Machine-specific settings go in $SHELL_LOCAL_DIR/settings.sh (~/.config/shkit),
 # secrets in its secrets.sh (chmod 600). Neither lives in this repo.

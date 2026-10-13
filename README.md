@@ -75,7 +75,7 @@ There's no framework (no Oh My Zsh, no Oh My Bash) and the first prompt shows in
 ```bash
 git clone https://github.com/fmatsos/shellkit.git ~/shellkit
 ~/shellkit/zsh/try.sh          # try it first: nothing in ~ is touched, nothing is kept
-~/shellkit/zsh/install.sh      # links ~/.zshrc and ~/.zshenv, creates ~/.config/shkit
+~/shellkit/zsh/install.sh      # adds its block to ~/.zshrc, links ~/.zshenv, creates ~/.config/shkit
 exec zsh
 ```
 

@@ -348,9 +348,10 @@ function _shkit_doctor {
   m=($old)
   (( $#m )) && _shkit_say warn "shellkit 1.0 names (PROMPT_*) in ${(j:, :)${m:t}}: still read; shell/install-local.sh renames them"
   f=${ZDOTDIR:-$HOME}/.zshrc
-  if [[ ${f:A} == $r/zsh/zshrc ]]; then :
+  if [[ -r $f && $(<$f) == *'# >>> shellkit >>>'* ]]; then :
+  elif [[ ${f:A} == $r/zsh/zshrc ]]; then _shkit_say warn "${f/#$HOME/~} is still a symlink to shellkit: run zsh/install.sh, it becomes your own file"
   elif [[ -n $SHKIT_TRY ]]; then _shkit_say -- "trying shellkit (zsh/try.sh): nothing is kept"
-  elif (( $+functions[_zshrc_jump] )); then _shkit_say warn "${f/#$HOME/~} doesn't link to $r/zsh/zshrc (zsh/install.sh)"
+  elif (( $+functions[_zshrc_jump] )); then _shkit_say warn "${f/#$HOME/~} has no shellkit block (zsh/install.sh)"
   else _shkit_say -- "prompt only: ${f/#$HOME/~} is your own and sources prompt.zsh"; fi
   [[ -w $_prompt_cache ]] || _shkit_say FAIL "$_prompt_cache: not writable, the prompt can't cache"
 

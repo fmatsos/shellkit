@@ -14,7 +14,8 @@ Working on shellkit itself. The rules for contributors, human or agent, are in
 
 | Path | Role |
 |------|------|
-| `zsh/zshrc`, `zsh/zshenv` | the zsh config, symlinked by `zsh/install.sh` |
+| `zsh/zshrc`, `zsh/zshenv` | the zsh config: `zshrc` is loaded by a block of `~/.zshrc`, `zshenv` symlinked, both by `zsh/install.sh` |
+| `shell/rc-block.sh` | writes or rewrites a `# >>> name >>>` block at the top of a file (both install scripts); self-check `bash shell/rc-block.check.sh` |
 | `zsh/prompt.zsh` | the prompt: blocks, background jobs, layers, rendering |
 | `zsh/prompt.check.zsh` | its self-check (no network) |
 | `zsh/shkit.zsh` | the `shkit` command, its completion, the auto-update |

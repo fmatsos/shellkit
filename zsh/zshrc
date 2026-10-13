@@ -1,4 +1,5 @@
-# ~/.zshrc — a symlink to <config repo>/zsh/zshrc (see zsh/install.sh).
+# <config repo>/zsh/zshrc, loaded by the shellkit block that zsh/install.sh puts at the top of
+# ~/.zshrc. The rest of ~/.zshrc is yours and never versioned.
 #
 # Everything for this machine only lives in $SHELL_LOCAL_DIR (~/.config/shkit,
 # chmod 700), never in this repo: settings.sh and secrets.sh (chmod 600), plain
