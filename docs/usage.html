@@ -495,11 +495,6 @@ sees the commands of the others.</li>
 </thead>
 <tbody>
 <tr>
-<td><code>NO_CLOBBER</code></td>
-<td>
-<code>&gt;</code> never overwrites an existing file: use `&gt;</td>
-</tr>
-<tr>
 <td><code>AUTO_CD</code></td>
 <td>a directory name alone changes into it</td>
 </tr>
@@ -620,8 +615,8 @@ should call <code>command mkdir</code> and the like. Scripts that are <em>execut
 shebang) don't see aliases.</p>
 </blockquote>
 <h2 id="the-bash-fallback">The bash fallback</h2>
-<p><code>bash/bashrc</code> has the same options (<code>autocd</code>, <code>cdspell</code>, <code>dirspell</code>, <code>globstar</code>,
-<code>noclobber</code>), the same unlimited shared history with prefix search, <kbd>Esc</kbd>
+<p><code>bash/bashrc</code> has the same options (<code>autocd</code>, <code>cdspell</code>, <code>dirspell</code>, <code>globstar</code>),
+the same unlimited shared history with prefix search, <kbd>Esc</kbd>
 <kbd>Esc</kbd> for <code>sudo</code>, colored <code>man</code> and the same aliases.</p>
 <p>Its prompt is deliberately minimal: the directory, the git branch (through git's
 own <code>__git_ps1</code>) and a <code>$</code> that turns red when the last command failed. The full
