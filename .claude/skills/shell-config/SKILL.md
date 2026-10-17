@@ -7,7 +7,7 @@ description: Maintain the shell setup of this repo — zsh/bash options, aliases
 
 Plain zsh (default shell) and plain bash (fallback), with no framework. Don't
 bring back Oh My Zsh or Oh My Bash: dropping OMB took startup from 254 ms to about 30 ms and
-removed its side effects (noclobber surprises, `CDPATH=.` echoing paths, aliases).
+removed its side effects (`CDPATH=.` echoing paths, aliases).
 
 ## Where a setting belongs
 
@@ -40,7 +40,7 @@ of both rc files, so it can't be moved from a file inside it). A new one: add it
 
 ## Changing things
 
-- **Option parity**: autocd, noclobber (write with `>|`), `**` recursion, spelling fixes
+- **Option parity**: autocd, `**` recursion, spelling fixes
   (bash `cdspell`/`dirspell`, zsh `_approximate` completer), unlimited shared history,
   ↑/↓ prefix search, Esc Esc to toggle `sudo`, colored `man`. A change to one of
   these goes in both rc files.

@@ -12,7 +12,6 @@ SHELL_LOCAL_DIR=${SHELL_LOCAL_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/shkit}   # 
 
 # --- Options ------------------------------------------------------------------
 setopt AUTO_CD            # `www` = `cd www`
-setopt NO_CLOBBER         # `>` never overwrites a file; `>|` does it on purpose
 setopt INTERACTIVE_COMMENTS
 # `**` recurses by default (bash's globstar). Typos in paths are fixed on <Tab>
 # by the _approximate completer below (bash's cdspell/dirspell).

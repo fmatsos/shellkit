@@ -44,7 +44,6 @@ Working on shellkit itself. The rules for contributors, human or agent, are in
 - **Nothing dynamic reaches the prompt unescaped**, and `PROMPT_SUBST` stays off.
 - **No secret in the repository, ever.** The code uses variables, and the values
   live in `~/.config/shkit/secrets.sh`.
-- **`noclobber` is on**: overwrite a file with `>|`.
 
 ## Checks
 

@@ -20,7 +20,6 @@ SHELL_LOCAL_DIR=${SHELL_LOCAL_DIR:-${XDG_CONFIG_HOME:-$HOME/.config}/shkit}
 
 # --- Options ------------------------------------------------------------------
 shopt -s autocd cdspell dirspell globstar checkwinsize
-set -o noclobber   # `>` never overwrites a file; `>|` does it on purpose
 
 # --- History: one unlimited history, shared by every tab as it goes ----------
 HISTSIZE=-1

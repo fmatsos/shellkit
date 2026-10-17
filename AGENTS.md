@@ -74,7 +74,6 @@ Tested on one OS only: say so, and list what to check on the other.
 ## Conventions
 
 - Plain zsh / bash, no framework (no Oh My Zsh / Oh My Bash).
-- `noclobber` is on in both shells: overwrite an existing file with `>|`, not `>`.
 - The prompt's synchronous path stays local and fast (< 50 ms on a large
   repo); anything networked goes through its background cache.
 - Prompt features live in `zsh/prompt.zsh` only; the bash prompt stays minimal

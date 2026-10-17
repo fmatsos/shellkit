@@ -63,7 +63,6 @@ Key bindings are Emacs style (`bindkey -e`).
 
 | Option | Effect |
 |--------|--------|
-| `NO_CLOBBER` | `>` never overwrites an existing file: use `>|` when you mean it |
 | `AUTO_CD` | a directory name alone changes into it |
 | `INTERACTIVE_COMMENTS` | `# comments` work on the command line |
 | recursive `**` | `ls **/*.php` walks subdirectories (built into zsh, `globstar` in bash) |
@@ -133,8 +132,8 @@ which both shells source right after `shell/aliases.sh`. It is never committed.
 
 ## The bash fallback
 
-`bash/bashrc` has the same options (`autocd`, `cdspell`, `dirspell`, `globstar`,
-`noclobber`), the same unlimited shared history with prefix search, <kbd>Esc</kbd>
+`bash/bashrc` has the same options (`autocd`, `cdspell`, `dirspell`, `globstar`),
+the same unlimited shared history with prefix search, <kbd>Esc</kbd>
 <kbd>Esc</kbd> for `sudo`, colored `man` and the same aliases.
 
 Its prompt is deliberately minimal: the directory, the git branch (through git's

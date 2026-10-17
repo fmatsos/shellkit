@@ -3,7 +3,7 @@ fail=0
 ok() { [[ $1 == 0 ]] && echo "ok   $2" || { echo "FAIL $2${3:+: $3}"; fail=1; }; }
 
 [[ $- == *i* ]] && alias ll gs >/dev/null && ll / >/dev/null; ok $? "bashrc loaded: aliases, ls flags"
-shopt -q autocd globstar && [[ -o noclobber ]]; ok $? "options: autocd, globstar, noclobber"
+shopt -q autocd globstar; ok $? "options: autocd, globstar"
 declare -F p >/dev/null && [[ $(complete -p p) == *'_shkit_p p' ]]; ok $? "project jump and completion loaded"
 
 t=$(mktemp -d)

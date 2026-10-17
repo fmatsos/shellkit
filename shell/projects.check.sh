@@ -6,7 +6,7 @@ here=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 t=$(mktemp -d); trap 'command rm -rf -- "$t"' EXIT
 export HOME=$t/home
 unset SHKIT_PROJECT_ROOTS
-set -o noclobber
+set -o noclobber   # stricter than the rc files: sourced code must write with >|
 # shellcheck source=shell/aliases.sh
 . "$here/aliases.sh"
 fail=0

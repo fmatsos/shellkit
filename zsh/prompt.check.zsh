@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 # Self-check for prompt.zsh (local segments + async watcher, no network):
 #   zsh zsh/prompt.check.zsh
-setopt NO_CLOBBER   # as in zshrc: the prompt must write its cache with >|
+setopt NO_CLOBBER   # stricter than zshrc: the prompt must write its cache with >|
 setopt EXTENDED_GLOB   # for the escape-stripping patterns below (the prompt itself doesn't need it)
 unset LC_ALL; export LC_CTYPE=${${OSTYPE:#darwin*}:+C.}UTF-8   # as zshrc with no locale (CI): the icons need UTF-8
 t=${$(mktemp -d):A}; trap 'rm -rf $t' EXIT   # :A = real path: macOS's /var is /private/var, git answers that one

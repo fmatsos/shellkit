@@ -187,7 +187,7 @@ function _prompt_seg_php {
 - **macOS**: no `/proc` (`{agents}` then checks the pid is alive only, `_prompt_proc`),
   no GNU `stat`/`date` (use `zstat`, `$EPOCHREALTIME`); paths compared as real paths
   (`:A`), since `/tmp` and `/var` are symlinks there.
-- **noclobber** is on: write with `>|`. Use `command mkdir/mv/rm`, because the aliases
+- Use `command mkdir/mv/rm`, because the aliases
   from `shell/aliases.sh` (`mkdir -pv`…) print messages.
 - **zsh gotchas met here**:
   - save `$?` first thing in precmd;
@@ -203,7 +203,7 @@ function _prompt_seg_php {
 ## Testing
 
 - `zsh zsh/prompt.check.zsh`: runs in a temp `HOME` and `XDG_RUNTIME_DIR` with
-  noclobber, and no network is needed.
+  `noclobber` (stricter than the user's shell), and no network is needed.
 - Stub external tools with an executable in a `PATH` dir: `_prompt_timeout` runs
   binaries, so it ignores shell functions. The macOS fallbacks are checked on Linux
   (`unhash timeout`, `_prompt_proc=<none>`).

@@ -13,7 +13,7 @@ git init -q -b main $t/repo && cd $t/repo && git config user.email t@t && git co
   print a >f && git add f && git commit -qm init
 _prompt_precmd >/dev/null; p=${(%)PROMPT}
 [[ $p == *repo* && $p == *main* ]]; ok $? "prompt: directory and branch" "$p"
-print -r -- ${(qqqq):-$t/repo} >>| ~/.cache/zsh/recent-dirs   # >>|: noclobber; what `cd` records (not from a script)
+print -r -- ${(qqqq):-$t/repo} >>| ~/.cache/zsh/recent-dirs   # what `cd` records (not from a script)
 cd ~; [[ $(_zshrc_jump_target repo; print $REPLY) == $t/repo ]]; ok $? "a directory's name alone jumps to it"
 [[ $_comps[-command-] == _zshrc_command ]]; ok $? "<Tab> on the first word offers the visited directories"
 [[ $(zstyle -L zle-line-pre-redraw) == *_zshrc_kind* ]]; ok $? "a one-word line shows what Enter will do"
