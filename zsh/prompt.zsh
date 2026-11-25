@@ -726,6 +726,7 @@ function _prompt_width { # PROMPT_TEXT -> REPLY: its width on screen
 }
 
 typeset -g _prompt_right=   # the right part, as rendered (shown or not)
+typeset -gi _prompt_l1w=0 _prompt_cols=1   # the info line's width on screen and \$COLUMNS then, for TRAPWINCH
 function _prompt_render { # [SPAWN] -> PROMPT, _prompt_right, _prompt_pending
   local SPAWN=${1:-0} _ts _data
   _prompt_project_switch
@@ -736,11 +737,11 @@ function _prompt_render { # [SPAWN] -> PROMPT, _prompt_right, _prompt_pending
   _prompt_line l; local l1=$REPLY
   _prompt_line r; _prompt_right=$REPLY
   (( ${#pending} )) && l1+=" ${_c_mute}${_i_refresh}${_c_reset}"
+  _prompt_width $l1; _prompt_l1w=$REPLY _prompt_cols=${COLUMNS:-80}
   if [[ -n $_prompt_right ]]; then
-    _prompt_width $l1; local gap=$REPLY
     _prompt_width $_prompt_right
-    (( gap = ${COLUMNS:-80} - gap - REPLY - 1 ))   # - 1: the last column would wrap
-    (( gap >= 2 )) && l1+=${(l:gap:)}$_prompt_right
+    local gap=$(( ${COLUMNS:-80} - _prompt_l1w - REPLY - 1 ))   # - 1: the last column would wrap
+    (( gap >= 2 )) && l1+=${(l:gap:)}$_prompt_right && (( _prompt_l1w = ${COLUMNS:-80} - 1 ))
   fi
   RPROMPT=
   local chevron=$_c_primary
@@ -770,7 +771,17 @@ function _prompt_watch { # SPINNING FILE... — only the first SPINNING files sp
   print done
 }
 
-function _prompt_winch { _prompt_render; zle && zle reset-prompt; }
+# A terminal that rewraps its lines on a resize (VTE, iTerm2, kitty, Terminal.app…) turns
+# the info line, drawn at the old width, into more rows than zle knows of; zle redraws
+# from too low and the k extra rows stayed on screen: go up over them before redrawing.
+function _prompt_winch {
+  local w=$(( _prompt_l1w > 0 ? _prompt_l1w : 1 ))
+  local k=$(( (w + COLUMNS - 1) / COLUMNS - (w + _prompt_cols - 1) / _prompt_cols ))
+  _prompt_render
+  zle || return 0
+  (( k > 0 )) && print -n -- $'\e['$k'A'
+  zle reset-prompt
+}
 (( $+functions[TRAPWINCH] )) || function TRAPWINCH { _prompt_winch }
 
 function _prompt_async_done { # FD
